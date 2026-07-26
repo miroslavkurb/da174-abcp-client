@@ -18,4 +18,15 @@
     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
+  <!-- Сведения о продукте попадают в свойства файла и в журнал при запуске.
+       Версия по умолчанию — для локальных сборок; при выпуске релиза её задаёт
+       рабочий процесс из имени тега (-p:Version=1.2.3). -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Product>ABCP Client</Product>
+    <Company>ООО «Дойч-Авто ДА»</Company>
+    <Authors>miroslavkurb</Authors>
+    <Copyright>© ООО «Дойч-Авто ДА»</Copyright>
+  </PropertyGroup>
+
 </Project>

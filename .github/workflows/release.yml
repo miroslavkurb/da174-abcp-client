@@ -1,0 +1,152 @@
+name: Релиз
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия без префикса v, например 1.0.1'
+        required: true
+        type: string
+      prerelease:
+        description: 'Пометить как предварительный выпуск'
+        required: false
+        default: false
+        type: boolean
+
+# Нужно для создания релиза и загрузки файлов встроенным токеном:
+# сторонние действия и личные токены при этом не требуются.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Windows обязателен: интерфейс на WPF, часть проектов нацелена на net8.0-windows.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Полная история нужна для автоматических заметок к релизу:
+          # они строятся по коммитам с прошлого тега.
+          fetch-depth: 0
+
+      - name: Установка .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Версия выпуска
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version = '${{ inputs.version }}'.Trim().TrimStart('v')
+          }
+          else {
+            $version = '${{ github.ref_name }}'.TrimStart('v')
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') {
+            throw "Версия '$version' не похожа на семантическую: ожидается 1.2.3 или 1.2.3-beta.1"
+          }
+
+          "version=$version"  >> $env:GITHUB_OUTPUT
+          "tag=v$version"     >> $env:GITHUB_OUTPUT
+          "Версия выпуска: $version" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Восстановление пакетов
+        run: dotnet restore ABCPClient.sln
+
+      - name: Сборка
+        run: >
+          dotnet build ABCPClient.sln -c Release --no-restore
+          -p:Version=${{ steps.version.outputs.version }}
+
+      # Релиз не выпускается, пока тесты не прошли: артефакт с красными тестами
+      # хуже отсутствия артефакта.
+      - name: Тесты
+        run: >
+          dotnet test tests/ABCPClient.Tests/ABCPClient.Tests.csproj
+          -c Release --no-build
+          --logger "trx;LogFileName=tests.trx"
+          --results-directory TestResults
+
+      - name: Один самодостаточный exe
+        run: >
+          dotnet publish src/ABCPClient.UI/ABCPClient.UI.csproj
+          -c Release -r win-x64 --self-contained
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none -p:DebugSymbols=false
+          -p:GenerateDocumentationFile=false
+          -o artifacts/self-contained
+
+      - name: Сборка под установленный .NET Desktop Runtime
+        run: >
+          dotnet publish src/ABCPClient.UI/ABCPClient.UI.csproj
+          -c Release
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:DebugType=none -p:DebugSymbols=false
+          -p:GenerateDocumentationFile=false
+          -o artifacts/framework-dependent
+
+      - name: Упаковка
+        id: pack
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          New-Item -ItemType Directory -Force release | Out-Null
+
+          $exe = "release/ABCPClient-$version-win-x64.exe"
+          Copy-Item artifacts/self-contained/ABCPClient.UI.exe $exe
+
+          $zip = "release/ABCPClient-$version-win-x64-runtime-required.zip"
+          Compress-Archive -Path artifacts/framework-dependent/* -DestinationPath $zip
+
+          # Контрольные суммы: единственный способ проверить, что скачанный
+          # файл совпадает с собранным, — GitHub их сам не считает.
+          Get-ChildItem release -File |
+            Get-FileHash -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
+            Set-Content release/SHA256SUMS.txt -Encoding ascii
+
+          "" >> $env:GITHUB_STEP_SUMMARY
+          "| Файл | Размер |" >> $env:GITHUB_STEP_SUMMARY
+          "|---|---|" >> $env:GITHUB_STEP_SUMMARY
+          Get-ChildItem release -File | ForEach-Object {
+            "| $($_.Name) | $([math]::Round($_.Length / 1MB, 1)) МБ |" >> $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Создание релиза
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ steps.version.outputs.tag }}'
+          $prerelease = if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' } else { '' }
+
+          # Тег уже существует, если выпуск начат с git push tag; при запуске
+          # вручную gh создаёт его сам на текущем коммите.
+          $ghArgs = @(
+            'release', 'create', $tag,
+            '--title', "ABCP Client $tag",
+            '--generate-notes',
+            '--target', '${{ github.sha }}'
+          )
+
+          if ($prerelease) { $ghArgs += $prerelease }
+          $ghArgs += (Get-ChildItem release -File | ForEach-Object { $_.FullName })
+
+          gh @ghArgs
+
+      - name: Результаты тестов
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn
