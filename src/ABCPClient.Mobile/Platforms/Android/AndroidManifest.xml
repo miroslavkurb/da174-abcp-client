@@ -1,6 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<!-- android:usesCleartextTraffic обязателен: с Android 9 приложениям запрещён
+	     обычный HTTP, а узел склада работает по HTTP в локальной сети склада.
+	     Ставить ему сертификат негде: адрес — это IP компьютера, который меняется,
+	     и самоподписанному сертификату Android всё равно не поверит без установки
+	     его в системное хранилище на каждом терминале.
+	     Признак разрешает обычный HTTP ко всем адресам, но приложение обращается
+	     только к узлу по адресу, введённому вручную, и к API ABCP — тот по HTTPS. -->
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" android:usesCleartextTraffic="true"></application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

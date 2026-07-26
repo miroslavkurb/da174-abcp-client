@@ -420,12 +420,29 @@ public sealed class HubClient
         return true;
     }
 
-    private static string Explain(Exception exception) => exception switch
+    /// <summary>
+    /// Составляет сообщение об ошибке связи.
+    /// </summary>
+    /// <remarks>
+    /// К подсказке добавляется исходный текст ошибки: без него запрет обычного
+    /// HTTP на Android, недоступный порт и неверный адрес выглядят одинаково,
+    /// и разобраться на складе не по чему.
+    /// </remarks>
+    private static string Explain(Exception exception)
     {
-        TaskCanceledException => "Узел не ответил вовремя. Проверьте, что программа на компьютере запущена "
-            + "и устройство в той же сети",
-        _ => "Нет связи с узлом. Проверьте адрес, сеть склада и брандмауэр на компьютере",
-    };
+        string hint = exception is TaskCanceledException
+            ? "Узел не ответил вовремя. Проверьте, что программа на компьютере запущена и устройство в той же сети"
+            : "Нет связи с узлом. Проверьте адрес, сеть склада и брандмауэр на компьютере";
+
+        // Причина бывает во внутреннем исключении: у HttpRequestException
+        // наверху лежит общее «An error occurred while sending the request».
+        string detail = (exception.InnerException ?? exception).Message;
+
+        return detail.Length == 0 ? hint : $"{hint}. {Shorten(detail)}";
+    }
+
+    private static string Shorten(string value) =>
+        value.Length <= 160 ? value : value[..160] + "…";
 }
 
 /// <summary>
