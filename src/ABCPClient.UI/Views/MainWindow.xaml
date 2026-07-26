@@ -1,0 +1,178 @@
+<Window x:Class="ABCPClient.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:ABCPClient.UI.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="ABCP Client — заказы" Height="700" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/app.ico">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="NavItem">
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+
+        <!-- Верхняя панель: обновление, синхронизация, настройки, поиск и фильтры -->
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button Command="{Binding ReloadOrdersCommand}" Content="Обновить" Padding="10,3" />
+                <Button Command="{Binding SyncNowCommand}" Content="Синхронизировать"
+                        Padding="10,3" IsEnabled="{Binding IsApiConfigured}" />
+                <Separator />
+                <Button Content="Настройки" Padding="10,3" Click="OnOpenSettings" />
+                <Separator />
+                <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="4,0" />
+                <TextBox Width="220" VerticalAlignment="Center"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=400}"
+                         ToolTip="Номер заказа, номер в 1С, клиент, бренд или артикул позиции" />
+                <TextBlock Text="Статус:" VerticalAlignment="Center" Margin="8,0,4,0" />
+                <ComboBox Width="200" VerticalAlignment="Center"
+                          ItemsSource="{Binding Statuses}"
+                          SelectedItem="{Binding SelectedStatus}"
+                          DisplayMemberPath="Name" />
+                <TextBlock Text="С:" VerticalAlignment="Center" Margin="8,0,4,0" />
+                <DatePicker Width="120" SelectedDate="{Binding DateFrom}" />
+                <TextBlock Text="По:" VerticalAlignment="Center" Margin="8,0,4,0" />
+                <DatePicker Width="120" SelectedDate="{Binding DateTo}" />
+                <CheckBox VerticalAlignment="Center" Margin="8,0,0,0"
+                          Content="Удалённые"
+                          IsChecked="{Binding ShowDeleted}"
+                          ToolTip="Показывать заказы, удалённые в панели управления ABCP" />
+                <Button Command="{Binding ReloadOrdersCommand}" Content="Применить" Padding="10,3" Margin="8,0,0,0" />
+                <Button Command="{Binding ClearFiltersCommand}" Content="Сбросить" Padding="10,3" />
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Строка состояния: подключение, последняя синхронизация, количество заказов -->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding ConnectionStatus}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="{Binding LastSyncText}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="{Binding OrdersCount, StringFormat=Заказов: {0}}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#B45309" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ProgressBar Width="120" Height="12" IsIndeterminate="True"
+                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Левая навигация; логотип прижат к низу колонки -->
+            <DockPanel Grid.Column="0" Margin="14">
+                <Image DockPanel.Dock="Bottom" Source="/Assets/logo.jpg" Stretch="Uniform"
+                       MaxWidth="150" HorizontalAlignment="Left" Margin="0,16,0,4"
+                       ToolTip="Дойч-Авто" />
+
+                <StackPanel>
+                    <TextBlock Text="Подключение" FontWeight="SemiBold" Style="{StaticResource NavItem}" />
+                    <TextBlock Text="{Binding ConnectionStatus}" TextWrapping="Wrap"
+                               Foreground="#555" Style="{StaticResource NavItem}" />
+                    <Button Content="Открыть настройки" Click="OnOpenSettings" Margin="0,4,0,16" Padding="8,4" />
+
+                    <TextBlock Text="Заказы" FontWeight="SemiBold" Style="{StaticResource NavItem}" />
+                    <TextBlock Text="Двойной клик по строке открывает состав заказа с фото товаров."
+                               TextWrapping="Wrap" Foreground="#555" Style="{StaticResource NavItem}" />
+
+                    <TextBlock Text="Журнал" FontWeight="SemiBold" Style="{StaticResource NavItem}" />
+                    <TextBlock Text="Записи о синхронизациях — на вкладке «Журнал»."
+                               TextWrapping="Wrap" Foreground="#555" Style="{StaticResource NavItem}" />
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Рабочая область -->
+            <TabControl Grid.Column="1" Margin="0,0,0,0">
+                <TabItem Header="Заказы">
+                    <DataGrid ItemsSource="{Binding Orders}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserSortColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              RowHeaderWidth="0"
+                              SelectionMode="Single"
+                              MouseDoubleClick="OnOrderDoubleClick">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <!-- Удалённый заказ видно сразу: иначе он ничем не отличается
+                                     от живого, и включённая галка «Удалённые» вводит в заблуждение. -->
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDeleted}" Value="True">
+                                        <Setter Property="Foreground" Value="#9CA3AF" />
+                                        <Setter Property="ToolTip" Value="Заказ удалён в панели управления" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="110" />
+                            <DataGridTextColumn Header="Номер в 1С" Binding="{Binding InternalNumber}" Width="110" />
+                            <DataGridTextColumn Header="Дата" Width="130"
+                                                Binding="{Binding Date, StringFormat='dd.MM.yyyy HH:mm'}" />
+                            <DataGridTextColumn Header="Клиент" Binding="{Binding Customer}" Width="*" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding StatusText}" Width="180" />
+                            <DataGridTextColumn Header="Сумма" Width="110"
+                                                Binding="{Binding Sum, StringFormat='N2'}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Позиций" Binding="{Binding PositionsCount}" Width="80" />
+                            <DataGridTextColumn Header="Изменён" Width="130"
+                                                Binding="{Binding DateUpdated, StringFormat='dd.MM.yyyy HH:mm'}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Журнал">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="8"
+                                Padding="10,3" Content="Обновить журнал"
+                                Command="{Binding Journal.ReloadCommand}" />
+                        <DataGrid ItemsSource="{Binding Journal.Entries}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  RowHeaderWidth="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Время" Width="140"
+                                                    Binding="{Binding StartedAt, StringFormat='dd.MM.yyyy HH:mm:ss'}" />
+                                <DataGridTextColumn Header="Операция" Binding="{Binding Operation}" Width="150" />
+                                <DataGridTextColumn Header="Результат" Binding="{Binding Outcome}" Width="100" />
+                                <DataGridTextColumn Header="Получено" Binding="{Binding Fetched}" Width="90" />
+                                <DataGridTextColumn Header="Новых" Binding="{Binding Created}" Width="80" />
+                                <DataGridTextColumn Header="Обновлено" Binding="{Binding Updated}" Width="90" />
+                                <DataGridTextColumn Header="Статусов" Binding="{Binding StatusChanges}" Width="90" />
+                                <DataGridTextColumn Header="Время работы" Binding="{Binding DurationText}" Width="110" />
+                                <DataGridTextColumn Header="Сообщение" Binding="{Binding Message}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,43 @@
+name: Сборка и тесты
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Windows обязателен: интерфейс на WPF, а часть проектов нацелена
+    # на net8.0-windows (DPAPI, уведомления Windows).
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установка .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Восстановление пакетов
+        run: dotnet restore ABCPClient.sln
+
+      - name: Сборка
+        run: dotnet build ABCPClient.sln -c Release --no-restore
+
+      - name: Тесты
+        run: >
+          dotnet test tests/ABCPClient.Tests/ABCPClient.Tests.csproj
+          -c Release --no-build
+          --logger "trx;LogFileName=tests.trx"
+          --results-directory TestResults
+
+      - name: Результаты тестов
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn

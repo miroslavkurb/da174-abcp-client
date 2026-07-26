@@ -1,0 +1,21 @@
+<Project>
+
+  <!-- Общие настройки компиляции для всех проектов решения. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <NeutralLanguage>ru-RU</NeutralLanguage>
+
+    <!-- XML-документация обязательна по требованиям проекта.
+         CS1591 (нет комментария к публичному члену) оставлен предупреждением,
+         чтобы не блокировать сборку на промежуточных этапах. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+
+</Project>

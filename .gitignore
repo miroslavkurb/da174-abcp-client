@@ -1,0 +1,20 @@
+bin/
+obj/
+publish/
+publish-single/
+TestResults/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# локальные данные приложения: БД, логи, секреты
+*.db
+*.db-shm
+*.db-wal
+logs/
+appsettings.Development.json
+appsettings.Local.json
+secrets.json

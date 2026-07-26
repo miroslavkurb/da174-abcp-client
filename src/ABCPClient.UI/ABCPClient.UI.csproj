@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABCPClient.Application\ABCPClient.Application.csproj" />
+    <ProjectReference Include="..\ABCPClient.Infrastructure\ABCPClient.Infrastructure.csproj" />
+    <ProjectReference Include="..\ABCPClient.Domain\ABCPClient.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Версия Windows в TFM нужна для Windows Toast Notifications
+         (Microsoft.Toolkit.Uwp.Notifications). -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ABCPClient.UI</RootNamespace>
+    <AssemblyTitle>ABCP Client</AssemblyTitle>
+    <Product>ABCP Client</Product>
+    <Version>0.1.0</Version>
+
+    <!-- Иконка приложения собрана из логотип.jpg в корне решения. -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ресурсы упакованы в сборку: отдельные файлы рядом с exe не нужны. -->
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\logo.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

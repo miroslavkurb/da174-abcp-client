@@ -1,0 +1,11 @@
+<Application x:Class="ABCPClient.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:ABCPClient.UI.Converters">
+    <!-- StartupUri не задан намеренно: главное окно создаёт контейнер DI в App.OnStartup. -->
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <converters:InverseBooleanConverter x:Key="InverseBoolean" />
+        <converters:FilePathToImageConverter x:Key="FilePathToImage" />
+    </Application.Resources>
+</Application>
