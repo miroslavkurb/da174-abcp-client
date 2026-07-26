@@ -24,6 +24,30 @@ public interface IArticleCardRepository
     /// <param name="cards">Карточки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     Task UpsertAsync(IReadOnlyCollection<ArticleCard> cards, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Находит карточку по штрихкоду.
+    /// </summary>
+    /// <remarks>
+    /// Основной способ опознать товар на терминале сборки: сканер отдаёт штрихкод,
+    /// а не бренд с артикулом. Штрихкоды попадают в кэш из выгрузки каталога —
+    /// API их не отдаёт вовсе, поэтому покрытие неполное и поиск по артикулу
+    /// остаётся обязательным, а не запасным.
+    /// </remarks>
+    /// <param name="barcode">Штрихкод целиком.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    Task<ArticleCard?> FindByBarcodeAsync(string barcode, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ищет карточки по части артикула, бренда или наименования.
+    /// </summary>
+    /// <param name="query">Строка поиска.</param>
+    /// <param name="limit">Сколько карточек вернуть не более.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    Task<IReadOnlyList<ArticleCard>> SearchAsync(
+        string query,
+        int limit = 50,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>

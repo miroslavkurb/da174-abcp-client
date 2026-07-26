@@ -21,6 +21,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      # В решении есть приложение MAUI под Android: без рабочей нагрузки
+      # оно не собирается. Android SDK на образе уже установлен.
+      - name: Рабочие нагрузки .NET
+        run: dotnet workload restore ABCPClient.sln
+
       - name: Восстановление пакетов
         run: dotnet restore ABCPClient.sln
 

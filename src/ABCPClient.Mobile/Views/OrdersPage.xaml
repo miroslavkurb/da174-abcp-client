@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ABCPClient.Mobile.Views.OrdersPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dto="clr-namespace:ABCPClient.Application.DTO;assembly=ABCPClient.Application"
+    xmlns:vm="clr-namespace:ABCPClient.Mobile.ViewModels"
+    x:DataType="vm:OrdersViewModel"
+    Title="Заказы">
+
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0">
+
+        <!-- Поиск и обновление. Кнопка крупная: на складе по ней бьют пальцем
+             в перчатке, а не курсором. -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="12,10" ColumnSpacing="8"
+              BackgroundColor="#F2F5F8">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Номер, клиент, артикул"
+                       Text="{Binding SearchText}"
+                       SearchCommand="{Binding SearchCommand}"
+                       FontSize="17" />
+            <Button Grid.Column="1" Text="Обновить" FontSize="16" HeightRequest="48" MinimumWidthRequest="110"
+                    Command="{Binding SyncCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+        </Grid>
+
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding SyncCommand}">
+            <CollectionView ItemsSource="{Binding Orders}"
+                            SelectionMode="None"
+                            RemainingItemsThreshold="-1">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="10" VerticalOptions="Center">
+                        <Label Text="Список пуст" FontSize="20" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="#666"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:OrderListItem">
+                        <!-- Высота строки под палец: две строки текста и отступы. -->
+                        <Grid Padding="14,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                              RowDefinitions="Auto,Auto" RowSpacing="4">
+
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=OpenOrderCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+
+                            <!-- Цветная полоса статуса: взгляд ловит её раньше текста. -->
+                            <BoxView Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                                     WidthRequest="5" CornerRadius="3"
+                                     Color="{Binding StatusColor, TargetNullValue='#B8C4CE'}" />
+
+                            <Label Grid.Row="0" Grid.Column="1" FontSize="19" FontAttributes="Bold"
+                                   Text="{Binding Number, StringFormat='№{0}'}" />
+
+                            <Label Grid.Row="0" Grid.Column="2" FontSize="18" FontAttributes="Bold"
+                                   HorizontalTextAlignment="End"
+                                   Text="{Binding Sum, StringFormat='{0:N0} ₽'}" />
+
+                            <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="#555"
+                                   LineBreakMode="TailTruncation"
+                                   Text="{Binding Customer, TargetNullValue='Клиент не указан'}" />
+
+                            <Label Grid.Row="1" Grid.Column="2" FontSize="14" TextColor="#555"
+                                   HorizontalTextAlignment="End"
+                                   Text="{Binding StatusText}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="#F2F5F8" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#555"
+                   LineBreakMode="TailTruncation" VerticalOptions="Center" />
+            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               WidthRequest="20" HeightRequest="20" />
+        </Grid>
+    </Grid>
+</ContentPage>

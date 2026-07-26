@@ -28,6 +28,10 @@ public static class ApplicationServiceCollectionExtensions
         // и время остывания после ошибки 303.
         services.AddSingleton<IArticleCardService, ArticleCardService>();
 
+        // Опознание детали по штрихкоду или артикулу: основа терминала сборки,
+        // но пользуются им и настольная программа, и будущий узел склада.
+        services.AddSingleton<IArticleLookup, ArticleLookupService>();
+
         return services;
     }
 }

@@ -15,10 +15,18 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!-- Windows-специфичная платформа: слой использует Windows DPAPI (ProtectedData)
-         для шифрования сохранённых секретов. Domain и Application остаются net8.0. -->
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- Две цели вместо одной: клиент API, база и кэш изображений от платформы
+         не зависят и нужны мобильному приложению, а шифрование секретов через
+         Windows DPAPI (ProtectedData) существует только под Windows.
+         В сборке net8.0 файл DpapiSecretProtector исключён, а реализацию
+         ISecretProtector обязана предоставить платформа-хозяин
+         (на Android это хранилище ключей через MAUI SecureStorage). -->
+    <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <Compile Remove="Security\DpapiSecretProtector.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Тестам нужен доступ к внутренним настройкам поведения (например,

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ABCPClient.Mobile.Views.OrderDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ABCPClient.Mobile.ViewModels"
+    x:DataType="vm:OrderDetailsViewModel"
+    Title="{Binding Header}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <VerticalStackLayout Grid.Row="0" Padding="14,12" Spacing="3" BackgroundColor="#F2F5F8">
+            <Label Text="{Binding Customer, TargetNullValue='Клиент не указан'}" FontSize="17"
+                   FontAttributes="Bold" />
+            <Label Text="{Binding StatusText}" FontSize="15" TextColor="#555" />
+            <Label Text="{Binding SumText}" FontSize="16" FontAttributes="Bold" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Positions}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:PositionViewModel">
+                    <!-- Картинка слева, текст справа: на узком экране это читается
+                         быстрее, чем плитка. -->
+                    <Grid Padding="12,10" ColumnDefinitions="72,*" ColumnSpacing="12"
+                          RowDefinitions="Auto,Auto,Auto">
+
+                        <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
+                               Source="{Binding Image}"
+                               Aspect="AspectFit"
+                               HeightRequest="72" WidthRequest="72"
+                               BackgroundColor="#EFEFEF" />
+
+                        <Label Grid.Row="0" Grid.Column="1" FontSize="17" FontAttributes="Bold">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Brand, Mode=OneWay}" />
+                                    <Span Text=" " />
+                                    <Span Text="{Binding Number, Mode=OneWay}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="#333"
+                               LineBreakMode="WordWrap" MaxLines="3"
+                               Text="{Binding Description, TargetNullValue='Наименование неизвестно'}" />
+
+                        <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="Auto,Auto,*" ColumnSpacing="14">
+                            <Label Grid.Column="0" FontSize="15" FontAttributes="Bold"
+                                   Text="{Binding QuantityText, Mode=OneWay}" />
+                            <Label Grid.Column="1" FontSize="15" Text="{Binding SumText, Mode=OneWay}" />
+                            <Label Grid.Column="2" FontSize="13" TextColor="#666"
+                                   HorizontalTextAlignment="End" LineBreakMode="TailTruncation"
+                                   Text="{Binding Status, Mode=OneWay}" />
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="#F2F5F8" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#555"
+                   LineBreakMode="WordWrap" VerticalOptions="Center" />
+            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               WidthRequest="20" HeightRequest="20" />
+        </Grid>
+    </Grid>
+</ContentPage>

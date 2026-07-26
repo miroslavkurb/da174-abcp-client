@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ABCPClient.Mobile.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ABCPClient.Mobile.ViewModels"
+    x:DataType="vm:MobileSettingsViewModel"
+    Title="Настройки">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Label Text="Данные доступа к API" FontSize="19" FontAttributes="Bold" />
+            <Label FontSize="13" TextColor="#666"
+                   Text="Адрес выдаёт менеджер ABCP. Логин и пароль — от пользователя со статусом «API-администратор». Пароль не сохраняется: приложение хранит его md5-хэш в зашифрованном виде." />
+
+            <Label Text="Адрес API" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding BaseUrl}" Placeholder="https://id00000.public.api.abcp.ru"
+                   Keyboard="Url" FontSize="17" HeightRequest="50" />
+
+            <Label Text="Логин" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding Login}" Placeholder="api@id00000" FontSize="17" HeightRequest="50" />
+
+            <Label Text="Пароль или md5-хэш" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding Password}" IsPassword="True" FontSize="17" HeightRequest="50" />
+            <Label FontSize="12" TextColor="#777" IsVisible="{Binding HasStoredPassword}"
+                   Text="Оставьте поле пустым, чтобы сохранить прежний пароль." />
+
+            <BoxView HeightRequest="1" Color="#DDD" Margin="0,6" />
+
+            <Label Text="Витрина магазина" FontSize="19" FontAttributes="Bold" />
+            <Label FontSize="13" TextColor="#666"
+                   Text="Источник наименований и изображений, не расходующий лимит вызовов API. Работает по страницам товара вашего сайта." />
+
+            <Entry Text="{Binding StorefrontUrl}" Placeholder="https://da174.ru" Keyboard="Url"
+                   FontSize="17" HeightRequest="50" />
+
+            <BoxView HeightRequest="1" Color="#DDD" Margin="0,6" />
+
+            <Button Text="Проверить подключение" FontSize="17" HeightRequest="52"
+                    Command="{Binding TestConnectionCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+
+            <Button Text="Сохранить" FontSize="17" HeightRequest="52"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+
+            <Label Text="{Binding StatusMessage}" FontSize="15" FontAttributes="Bold"
+                   LineBreakMode="WordWrap" />
+
+            <Label Text="{Binding VersionText}" FontSize="12" TextColor="#888" Margin="0,10,0,0" />
+            <Label Text="{Binding DataDirectory}" FontSize="10" TextColor="#AAA" LineBreakMode="CharacterWrap" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

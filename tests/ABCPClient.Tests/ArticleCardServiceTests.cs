@@ -498,6 +498,22 @@ public sealed class ArticleCardServiceTests
 
             return Task.CompletedTask;
         }
+
+        public Task<ArticleCard?> FindByBarcodeAsync(
+            string barcode,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Stored.Values.FirstOrDefault(card =>
+                card.Barcodes is { Length: > 0 } codes
+                && codes.Split(';').Contains(barcode, StringComparer.OrdinalIgnoreCase)));
+
+        public Task<IReadOnlyList<ArticleCard>> SearchAsync(
+            string query,
+            int limit = 50,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ArticleCard>>(Stored.Values
+                .Where(card => card.Number.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Take(limit)
+                .ToArray());
     }
 
     /// <summary>Витрина не настроена: источник выключен.</summary>

@@ -26,9 +26,18 @@ public static class InfrastructureServiceCollectionExtensions
     /// </summary>
     /// <param name="services">Контейнер.</param>
     /// <param name="configuration">Конфигурация приложения.</param>
+    /// <param name="registerBackgroundSync">
+    /// Регистрировать фоновую синхронизацию заказов как <c>IHostedService</c>.
+    /// </param>
+    /// <remarks>
+    /// Фоновую синхронизацию отключают мобильные приложения: в MAUI нет хоста,
+    /// который запускал бы <c>IHostedService</c>, и такая регистрация тихо
+    /// не работала бы. Синхронизацию там запускает экран, когда он открыт.
+    /// </remarks>
     public static IServiceCollection AddInfrastructureLayer(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool registerBackgroundSync = true)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -47,9 +56,14 @@ public static class InfrastructureServiceCollectionExtensions
 
         AddDatabase(services, configuration);
 
-        // Настройки: значения из базы перекрывают appsettings.json,
-        // секреты шифруются DPAPI.
+        // Настройки: значения из базы перекрывают appsettings.json.
+        // Секреты под Windows шифруются DPAPI; на других платформах реализацию
+        // обязано зарегистрировать само приложение — последняя регистрация побеждает.
+#if WINDOWS
         services.AddSingleton<ISecretProtector, DpapiSecretProtector>();
+#else
+        services.AddSingleton<ISecretProtector, UnsupportedSecretProtector>();
+#endif
         services.AddSingleton<IAppSettingsStore, AppSettingsStore>();
         services.AddSingleton<IAbcpSettingsProvider, AbcpSettingsProvider>();
         services.AddSingleton<IPasswordHasher, Md5PasswordHasher>();
@@ -80,7 +94,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.TryAddSingleton<INotificationService, LoggingNotificationService>();
 
         // Фоновая синхронизация.
-        services.AddHostedService<OrderPollingService>();
+        if (registerBackgroundSync)
+        {
+            services.AddHostedService<OrderPollingService>();
+        }
 
         return services;
     }

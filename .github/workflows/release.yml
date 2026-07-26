@@ -56,6 +56,9 @@ jobs:
           "tag=v$version"     >> $env:GITHUB_OUTPUT
           "Версия выпуска: $version" >> $env:GITHUB_STEP_SUMMARY
 
+      - name: Рабочие нагрузки .NET
+        run: dotnet workload restore ABCPClient.sln
+
       - name: Восстановление пакетов
         run: dotnet restore ABCPClient.sln
 
@@ -94,6 +97,16 @@ jobs:
           -p:GenerateDocumentationFile=false
           -o artifacts/framework-dependent
 
+      # APK подписывается автоматическим ключом отладки: приложение раздаётся
+      # внутри компании, а не через магазин. Для магазина потребуется свой
+      # keystore, и его нельзя держать в репозитории.
+      - name: Приложение для Android
+        run: >
+          dotnet publish src/ABCPClient.Mobile/ABCPClient.Mobile.csproj
+          -f net8.0-android -c Release
+          -p:Version=${{ steps.version.outputs.version }}
+          -o artifacts/android
+
       - name: Упаковка
         id: pack
         shell: pwsh
@@ -106,6 +119,16 @@ jobs:
 
           $zip = "release/ABCPClient-$version-win-x64-runtime-required.zip"
           Compress-Archive -Path artifacts/framework-dependent/* -DestinationPath $zip
+
+          # Из двух файлов Android берётся подписанный APK: aab нужен только
+          # магазину, а его тут нет.
+          $apk = Get-ChildItem artifacts/android -Filter *-Signed.apk | Select-Object -First 1
+          if ($apk) {
+            Copy-Item $apk.FullName "release/ABCPClient-$version-android.apk"
+          }
+          else {
+            throw 'Подписанный APK не найден: сборка под Android не дала результата'
+          }
 
           # Контрольные суммы: единственный способ проверить, что скачанный
           # файл совпадает с собранным, — GitHub их сам не считает.

@@ -149,6 +149,79 @@ public sealed class ArticleCardRepository : IArticleCardRepository
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    /// <inheritdoc />
+    public async Task<ArticleCard?> FindByBarcodeAsync(
+        string barcode,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(barcode))
+        {
+            return null;
+        }
+
+        string code = barcode.Trim();
+
+        await using AbcpDbContext context = await _contextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        // Штрихкоды хранятся строкой через точку с запятой, поэтому запросом
+        // отбираются кандидаты, а точное совпадение проверяется в памяти:
+        // подстрока «4607030880082» нашлась бы и внутри более длинного кода.
+        List<ArticleCard> candidates = await context.ArticleCards
+            .AsNoTracking()
+            .Where(card => card.Barcodes != null && EF.Functions.Like(card.Barcodes, "%" + code + "%"))
+            .Take(50)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return candidates.FirstOrDefault(card => HasBarcode(card, code));
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ArticleCard>> SearchAsync(
+        string query,
+        int limit = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return [];
+        }
+
+        string text = query.Trim();
+
+        // Ключ сопоставления даёт поиск без учёта разделителей: «ADW-0855»
+        // находит карточку, записанную как «ADW0855».
+        string matchKey = ArticleKey.Match(string.Empty, text).TrimStart('|');
+
+        await using AbcpDbContext context = await _contextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return await context.ArticleCards
+            .AsNoTracking()
+            .Where(card =>
+                EF.Functions.Like(card.MatchKey, "%" + matchKey + "%")
+                || EF.Functions.Like(card.Number, "%" + text + "%")
+                || EF.Functions.Like(card.Brand, "%" + text + "%")
+                || (card.Description != null && EF.Functions.Like(card.Description, "%" + text + "%")))
+            .OrderBy(card => card.Brand)
+            .ThenBy(card => card.Number)
+            .Take(Math.Clamp(limit, 1, 500))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Проверяет, что штрихкод указан у карточки целиком, а не как часть другого.
+    /// </summary>
+    internal static bool HasBarcode(ArticleCard card, string barcode) =>
+        card.Barcodes is { Length: > 0 } stored
+        && stored
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(code => string.Equals(code, barcode, StringComparison.OrdinalIgnoreCase));
+
     /// <summary>
     /// Проставляет сопоставительный ключ карточкам, сохранённым до его появления.
     /// </summary>
