@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ABCPClient.Application\ABCPClient.Application.csproj" />
+    <ProjectReference Include="..\ABCPClient.Hub\ABCPClient.Hub.csproj" />
     <ProjectReference Include="..\ABCPClient.Infrastructure\ABCPClient.Infrastructure.csproj" />
     <ProjectReference Include="..\ABCPClient.Domain\ABCPClient.Domain.csproj" />
   </ItemGroup>

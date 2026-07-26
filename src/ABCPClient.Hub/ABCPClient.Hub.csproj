@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Та же цель, что у инфраструктуры и настольной программы: узел живёт
+         внутри неё и работает с той же базой, поэтому должен использовать
+         ту же сборку инфраструктуры, а не её вариант под net8.0. -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Веб-узел в составе библиотеки: своего процесса у него нет. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABCPClient.Application\ABCPClient.Application.csproj" />
+    <ProjectReference Include="..\ABCPClient.Contracts\ABCPClient.Contracts.csproj" />
+    <ProjectReference Include="..\ABCPClient.Domain\ABCPClient.Domain.csproj" />
+    <ProjectReference Include="..\ABCPClient.Infrastructure\ABCPClient.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ABCPClient.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -38,6 +38,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Журнал синхронизации, показывается на отдельной вкладке.</summary>
     public JournalViewModel Journal { get; }
 
+    /// <summary>Сборка заказов и узел для терминалов, отдельная вкладка.</summary>
+    public PickingViewModel Picking { get; }
+
     [ObservableProperty]
     private string _connectionStatus = "Подключение не настроено";
 
@@ -88,6 +91,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IAbcpSettingsProvider settings,
         ISyncEventBus eventBus,
         JournalViewModel journal,
+        PickingViewModel picking,
         ILogger<MainViewModel> logger)
     {
         ArgumentNullException.ThrowIfNull(orders);
@@ -96,9 +100,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(eventBus);
         ArgumentNullException.ThrowIfNull(journal);
+        ArgumentNullException.ThrowIfNull(picking);
         ArgumentNullException.ThrowIfNull(logger);
 
         Journal = journal;
+        Picking = picking;
 
         _orders = orders;
         _statusCatalog = statusCatalog;

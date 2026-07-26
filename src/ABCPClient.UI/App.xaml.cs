@@ -5,6 +5,7 @@ using ABCPClient.Application.Configuration;
 using ABCPClient.Application.DependencyInjection;
 using ABCPClient.Application.DTO;
 using ABCPClient.Application.Interfaces;
+using ABCPClient.Hub;
 using ABCPClient.Infrastructure;
 using ABCPClient.Infrastructure.DependencyInjection;
 using ABCPClient.UI.Services;
@@ -186,11 +187,16 @@ public partial class App : System.Windows.Application
         builder.Services.AddApplicationLayer();
         builder.Services.AddInfrastructureLayer(builder.Configuration);
 
+        // Узел склада: программа выступает управляющей для терминалов сборки,
+        // поэтому узел живёт внутри неё и работает с той же базой.
+        builder.Services.AddWarehouseHub(builder.Configuration);
+
         // Уведомления Windows заменяют журнальную заглушку из инфраструктуры.
         builder.Services.AddSingleton<INotificationService, ToastNotificationService>();
 
         // Слой представления: окна и модели представления.
         builder.Services.AddSingleton<JournalViewModel>();
+        builder.Services.AddSingleton<PickingViewModel>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<MainWindow>();
 

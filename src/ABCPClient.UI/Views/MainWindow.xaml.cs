@@ -106,6 +106,24 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Создаёт задания на сборку по выделенным заказам.
+    /// </summary>
+    /// <remarks>
+    /// Выделение берётся из таблицы напрямую: множественный выбор в WPF
+    /// не привязывается к свойству модели представления без своего поведения,
+    /// а список выделенного нужен только здесь.
+    /// </remarks>
+    private async void OnCreatePickingTasks(object sender, RoutedEventArgs e)
+    {
+        string[] numbers = OrdersGrid.SelectedItems
+            .OfType<OrderListItem>()
+            .Select(order => order.Number)
+            .ToArray();
+
+        await _viewModel.Picking.CreateTasksAsync(numbers, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Открывает окно обновлений.
     /// </summary>
     /// <remarks>

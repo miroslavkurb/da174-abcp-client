@@ -26,6 +26,9 @@
                 <Button Command="{Binding SyncNowCommand}" Content="Синхронизировать"
                         Padding="10,3" IsEnabled="{Binding IsApiConfigured}" />
                 <Separator />
+                <Button Content="На сборку" Padding="10,3" Click="OnCreatePickingTasks"
+                        ToolTip="Создать задания на сборку по выделенным заказам. Несколько заказов выделяются с Ctrl или Shift" />
+                <Separator />
                 <Button Content="Настройки" Padding="10,3" Click="OnOpenSettings" />
                 <Button Content="Обновления" Padding="10,3" Click="OnOpenUpdates"
                         ToolTip="Проверить наличие новой версии программы" />
@@ -106,14 +109,15 @@
             <!-- Рабочая область -->
             <TabControl Grid.Column="1" Margin="0,0,0,0">
                 <TabItem Header="Заказы">
-                    <DataGrid ItemsSource="{Binding Orders}"
+                    <DataGrid x:Name="OrdersGrid"
+                              ItemsSource="{Binding Orders}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               CanUserSortColumns="True"
                               GridLinesVisibility="Horizontal"
                               HeadersVisibility="Column"
                               RowHeaderWidth="0"
-                              SelectionMode="Single"
+                              SelectionMode="Extended"
                               MouseDoubleClick="OnOrderDoubleClick">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
@@ -173,6 +177,109 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
+                </TabItem>
+
+                <TabItem Header="Сборка">
+                    <Grid Margin="8" DataContext="{Binding Picking}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Состояние узла: терминал без него ничего не увидит,
+                             и это должно быть видно здесь, а не выясняться на складе. -->
+                        <Border Grid.Row="0" BorderBrush="#DDD" BorderThickness="1" Padding="10" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding HubState}"
+                                           FontWeight="SemiBold" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,4,0,0" TextWrapping="Wrap">
+                                    <Run Text="Адрес для терминала:" Foreground="#666" />
+                                    <Run Text="{Binding HubAddresses, Mode=OneWay}" FontFamily="Consolas" />
+                                </TextBlock>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Foreground="#666" FontSize="11"
+                                           Text="{Binding PairingHint}" />
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
+                                            Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding PairingCode, TargetNullValue='——————'}"
+                                               FontFamily="Consolas" FontSize="26" FontWeight="Bold"
+                                               VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Content="Получить код" Padding="10,4"
+                                            Command="{Binding IssuePairingCodeCommand}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="Обновить" Padding="10,3" Command="{Binding LoadCommand}"
+                                    IsEnabled="{Binding IsNotBusy}" />
+                            <CheckBox Content="Только незакрытые" VerticalAlignment="Center" Margin="10,0"
+                                      IsChecked="{Binding OnlyOpen}" />
+                            <TextBox Width="180" Padding="4,2" VerticalAlignment="Center"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Поиск по номеру задания, заказу или клиенту" />
+                            <Button Content="Найти" Padding="10,3" Margin="6,0,0,0"
+                                    Command="{Binding LoadCommand}" />
+                            <Separator Margin="10,0" />
+                            <Button Content="Отменить задание" Padding="10,3"
+                                    Command="{Binding CancelTaskCommand}" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="230" />
+                            </Grid.ColumnDefinitions>
+
+                            <DataGrid Grid.Column="0" ItemsSource="{Binding Tasks}"
+                                      SelectedItem="{Binding SelectedTask}"
+                                      AutoGenerateColumns="False" IsReadOnly="True"
+                                      GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                                      RowHeaderWidth="0" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Задание" Binding="{Binding Number}" Width="100" />
+                                    <DataGridTextColumn Header="Заказ" Binding="{Binding OrderNumber}" Width="100" />
+                                    <DataGridTextColumn Header="1С" Binding="{Binding OneCOrderNumber}" Width="100" />
+                                    <DataGridTextColumn Header="Клиент" Binding="{Binding Customer}" Width="*" />
+                                    <DataGridTextColumn Header="Строк" Binding="{Binding LinesCount}" Width="60" />
+                                    <DataGridTextColumn Header="В наличии" Binding="{Binding InStockLines}" Width="80" />
+                                    <DataGridTextColumn Header="В пути" Binding="{Binding IncomingLines}" Width="70" />
+                                    <DataGridTextColumn Header="Собрано" Binding="{Binding CompleteLines}" Width="75" />
+                                    <DataGridTextColumn Header="Создано"
+                                                        Binding="{Binding CreatedAt, StringFormat='dd.MM HH:mm'}"
+                                                        Width="90" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <DockPanel Grid.Column="1" Margin="8,0,0,0">
+                                <TextBlock DockPanel.Dock="Top" Text="Подключённые терминалы"
+                                           FontWeight="SemiBold" Margin="0,0,0,4" />
+                                <Button DockPanel.Dock="Bottom" Content="Отключить выбранный" Padding="8,4"
+                                        Margin="0,4,0,0"
+                                        Command="{Binding RevokeDeviceCommand}"
+                                        CommandParameter="{Binding SelectedItem, ElementName=DevicesList}" />
+                                <ListBox x:Name="DevicesList" ItemsSource="{Binding Devices}" FontSize="11" />
+                            </DockPanel>
+                        </Grid>
+
+                        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                                   Margin="0,8,0,0" Foreground="#555" />
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>
