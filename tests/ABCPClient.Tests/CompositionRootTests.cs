@@ -1,8 +1,10 @@
 using ABCPClient.Application.Configuration;
 using ABCPClient.Application.DependencyInjection;
+using ABCPClient.Application.Interfaces;
 using ABCPClient.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ABCPClient.Tests;
@@ -12,7 +14,9 @@ namespace ABCPClient.Tests;
 /// </summary>
 public sealed class CompositionRootTests
 {
-    private static ServiceProvider BuildProvider(Dictionary<string, string?>? settings = null)
+    private static ServiceProvider BuildProvider(
+        Dictionary<string, string?>? settings = null,
+        bool registerBackgroundSync = true)
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(settings ?? [])
@@ -20,7 +24,7 @@ public sealed class CompositionRootTests
 
         return new ServiceCollection()
             .AddApplicationLayer()
-            .AddInfrastructureLayer(configuration)
+            .AddInfrastructureLayer(configuration, registerBackgroundSync)
             .BuildServiceProvider(new ServiceProviderOptions
             {
                 ValidateOnBuild = true,
@@ -62,6 +66,28 @@ public sealed class CompositionRootTests
         AbcpApiOptions options = provider.GetRequiredService<IOptions<AbcpApiOptions>>().Value;
 
         Assert.False(options.IsConfigured);
+    }
+
+    [Fact]
+    public void Background_sync_is_registered_by_default()
+    {
+        using ServiceProvider provider = BuildProvider();
+
+        Assert.Single(provider.GetServices<IHostedService>());
+    }
+
+    [Fact]
+    public void Background_sync_can_be_left_out()
+    {
+        // На этом держится мобильное приложение: в MAUI нет хоста, который
+        // запускал бы IHostedService, и такая регистрация тихо не работала бы.
+        using ServiceProvider provider = BuildProvider(registerBackgroundSync: false);
+
+        Assert.Empty(provider.GetServices<IHostedService>());
+
+        // Всё остальное при этом на месте: экран синхронизирует заказы сам.
+        Assert.NotNull(provider.GetRequiredService<IOrderSyncService>());
+        Assert.NotNull(provider.GetRequiredService<IArticleLookup>());
     }
 
     [Fact]
