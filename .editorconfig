@@ -53,3 +53,9 @@ dotnet_naming_symbols.interfaces.applicable_kinds = interface
 
 dotnet_naming_style.i_pascal.required_prefix = I
 dotnet_naming_style.i_pascal.capitalization = pascal_case
+
+# Миграции пишет не человек, а `dotnet ef migrations add`: править их под наш
+# стиль бессмысленно — следующая генерация вернёт как было.
+[src/ABCPClient.Infrastructure/Database/Migrations/*.cs]
+csharp_style_namespace_declarations = file_scoped:silent
+dotnet_diagnostic.IDE0161.severity = none

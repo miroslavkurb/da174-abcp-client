@@ -1,5 +1,7 @@
 # ABCP Client
 
+[![Сборка и тесты](https://github.com/miroslavkurb/da174-abcp-client/actions/workflows/build.yml/badge.svg)](https://github.com/miroslavkurb/da174-abcp-client/actions/workflows/build.yml)
+
 Настольное приложение для Windows: забирает заказы из API ABCP, хранит их локально,
 следит за появлением новых заказов и сменой статусов позиций, уведомляет пользователя
 и готово к двустороннему обмену с 1С:УТ 11.4.
@@ -49,6 +51,19 @@ dotnet publish src\ABCPClient.UI -c Release -r win-x64 --self-contained `
 
 Получается `ABCPClient.UI.exe` ≈ 85 МБ. Файл `appsettings.json` рядом не обязателен:
 он задаёт лишь значения по умолчанию, а действующие настройки хранятся в локальной базе.
+
+## Непрерывная сборка
+
+`.github/workflows/build.yml` собирает решение и прогоняет тесты при каждом push
+и pull request в `main`, плюс по кнопке (`workflow_dispatch`). Раннер — `windows-latest`:
+интерфейс на WPF, а часть проектов нацелена на `net8.0-windows` (DPAPI, уведомления
+Windows), поэтому на Linux решение не собирается в принципе. Результаты тестов
+выкладываются артефактом `test-results` в формате `.trx`.
+
+Стилевые правила из `.editorconfig` включены в сборку (`EnforceCodeStyleInBuild`),
+поэтому расхождения со стилем видны в логе CI как предупреждения. Исключение —
+каталог `Database/Migrations`: эти файлы генерирует `dotnet ef`, и править их
+под общий стиль бессмысленно.
 
 ## Первый запуск
 
