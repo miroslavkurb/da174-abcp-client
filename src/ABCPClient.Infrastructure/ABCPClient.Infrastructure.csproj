@@ -6,7 +6,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29" />
+    <!-- Пакет нужен только на этапе проектирования (dotnet ef migrations).
+         PrivateAssets не даёт ему уйти в приложения: в мобильной сборке он
+         занимал место и тянул за собой ненужное на устройстве. Сам проект
+         при этом компилируется — фабрика контекста времени разработки видит
+         его как раньше. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.29" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />

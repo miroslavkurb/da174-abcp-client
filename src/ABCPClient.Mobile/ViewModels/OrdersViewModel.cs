@@ -38,7 +38,18 @@ public sealed partial class OrdersViewModel : ObservableObject
 
     /// <summary>Идёт загрузка или синхронизация.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;
+
+    /// <summary>
+    /// Работа не идёт — кнопки доступны.
+    /// </summary>
+    /// <remarks>
+    /// Готовое свойство вместо преобразователя в разметке: тот жил в ресурсах
+    /// приложения, а страницы создаются раньше этих ресурсов, и разбор разметки
+    /// падал на поиске <c>StaticResource</c>.
+    /// </remarks>
+    public bool IsNotBusy => !IsBusy;
 
     /// <summary>Идёт обновление жестом «потянуть вниз».</summary>
     [ObservableProperty]

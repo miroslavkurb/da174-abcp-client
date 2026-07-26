@@ -24,7 +24,7 @@
 
             <Button Grid.Column="1" Text="Найти" FontSize="17" HeightRequest="52" MinimumWidthRequest="96"
                     Command="{Binding LookupCommand}"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+                    IsEnabled="{Binding IsNotBusy}" />
         </Grid>
 
         <Grid Grid.Row="1" Padding="12,0,12,10" ColumnDefinitions="*,Auto" BackgroundColor="#F2F5F8">

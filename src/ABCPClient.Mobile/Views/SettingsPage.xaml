@@ -39,11 +39,11 @@
 
             <Button Text="Проверить подключение" FontSize="17" HeightRequest="52"
                     Command="{Binding TestConnectionCommand}"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+                    IsEnabled="{Binding IsNotBusy}" />
 
             <Button Text="Сохранить" FontSize="17" HeightRequest="52"
                     Command="{Binding SaveCommand}"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+                    IsEnabled="{Binding IsNotBusy}" />
 
             <Label Text="{Binding StatusMessage}" FontSize="15" FontAttributes="Bold"
                    LineBreakMode="WordWrap" />

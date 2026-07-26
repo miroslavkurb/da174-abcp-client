@@ -21,7 +21,7 @@
                        FontSize="17" />
             <Button Grid.Column="1" Text="Обновить" FontSize="16" HeightRequest="48" MinimumWidthRequest="110"
                     Command="{Binding SyncCommand}"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+                    IsEnabled="{Binding IsNotBusy}" />
         </Grid>
 
         <RefreshView Grid.Row="1"

@@ -66,6 +66,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<SettingsPage>();
         builder.Services.AddTransient<OrderDetailsPage>();
 
+        // Оболочка тоже создаётся контейнером: ей нужны страницы. Singleton
+        // обязателен — в её конструкторе регистрируется маршрут карточки заказа,
+        // а повторная регистрация того же маршрута считается ошибкой.
+        builder.Services.AddSingleton<AppShell>();
+
         return builder.Build();
     }
 

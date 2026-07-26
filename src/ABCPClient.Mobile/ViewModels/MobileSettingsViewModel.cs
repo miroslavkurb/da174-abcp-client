@@ -52,7 +52,11 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
 
     /// <summary>Идёт сохранение или проверка.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;
+
+    /// <summary>Работа не идёт — кнопки доступны.</summary>
+    public bool IsNotBusy => !IsBusy;
 
     /// <summary>Каталог данных приложения — для понимания, где лежит база.</summary>
     public string DataDirectory => Infrastructure.AppPaths.DataDirectory;

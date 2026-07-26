@@ -40,7 +40,11 @@ public sealed partial class ScanViewModel : ObservableObject
 
     /// <summary>Идёт поиск.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;
+
+    /// <summary>Поиск не идёт — кнопки доступны.</summary>
+    public bool IsNotBusy => !IsBusy;
 
     /// <summary>Что-то найдено.</summary>
     [ObservableProperty]

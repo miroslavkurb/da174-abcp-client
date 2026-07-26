@@ -30,6 +30,21 @@
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
+  <!-- Обрезка неиспользуемого кода отключена намеренно. EF Core и внедрение
+       зависимостей работают через отражение, и компоновщик вырезает то, на что
+       нет прямых ссылок: приложение собирается, но падает при запуске уже
+       на устройстве. Цена — размер APK, и она здесь приемлема: приложение
+       раздаётся файлом внутри компании, а не через магазин. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <PublishTrimmed>false</PublishTrimmed>
+
+    <!-- Компиляция в машинный код в Release включена по умолчанию, но требует
+         обрезки, а её мы выключили. Без AOT приложение запускается чуть дольше —
+         это дешевле, чем падение из-за вырезанного кода. -->
+    <RunAOTCompilation>false</RunAOTCompilation>
+  </PropertyGroup>
+
   <!-- Пути к Android SDK и JDK, которые скачивает `dotnet build -t:InstallAndroidDependencies`.
        Заданы условно: если каталогов нет, сборка ищет их обычным путём (ANDROID_HOME,
        JAVA_HOME), поэтому на сервере сборки это ничего не ломает. Смысл в том, чтобы
