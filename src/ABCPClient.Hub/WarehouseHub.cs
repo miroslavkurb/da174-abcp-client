@@ -185,8 +185,12 @@ public sealed class WarehouseHub : IHostedService, IAsyncDisposable
             _logger.LogWarning("Отклонено обращение к узлу с адреса {Address}", remote);
 
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+            // Адрес называется прямо: без него причина отказа неотличима от
+            // ошибки настройки, а это собственный адрес обратившегося — не тайна.
             await context.Response
-                .WriteAsJsonAsync(new HubError("Узел доступен только из локальной сети склада"))
+                .WriteAsJsonAsync(new HubError(
+                    $"Узел доступен только из локальной сети склада. Обращение пришло с адреса {remote}"))
                 .ConfigureAwait(false);
 
             return;
@@ -412,13 +416,32 @@ public sealed class WarehouseHub : IHostedService, IAsyncDisposable
     /// <summary>
     /// Относится ли адрес к частным диапазонам.
     /// </summary>
+    /// <remarks>
+    /// Сопоставленный адрес разворачивается в IPv4 первым делом: узел слушает
+    /// двойным стеком, поэтому обращение обычного телефона по IPv4 приходит
+    /// как <c>::ffff:192.168.0.55</c>. Без этого шага проверка уходила в ветку
+    /// IPv6 и не признавала своим адрес из той же сети склада.
+    /// </remarks>
     internal static bool IsPrivate(IPAddress address)
     {
         ArgumentNullException.ThrowIfNull(address);
 
+        if (address.IsIPv4MappedToIPv6)
+        {
+            address = address.MapToIPv4();
+        }
+
         if (address.AddressFamily == AddressFamily.InterNetworkV6)
         {
-            return address.IsIPv6LinkLocal || address.IsIPv6SiteLocal || IPAddress.IsLoopback(address);
+            if (IPAddress.IsLoopback(address) || address.IsIPv6LinkLocal || address.IsIPv6SiteLocal)
+            {
+                return true;
+            }
+
+            // fc00::/7 — частные адреса IPv6, которые выдают домашние
+            // и офисные маршрутизаторы. IsIPv6SiteLocal их не покрывает:
+            // он про устаревший fec0::/10.
+            return (address.GetAddressBytes()[0] & 0xFE) == 0xFC;
         }
 
         byte[] octets = address.GetAddressBytes();

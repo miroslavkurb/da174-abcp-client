@@ -10,7 +10,7 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <Grid Grid.Row="0" Padding="12,10" ColumnDefinitions="*,Auto" ColumnSpacing="8"
-              BackgroundColor="#F2F5F8">
+              BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
             <CheckBox Grid.Column="0" IsChecked="{Binding OnlyOpen}" VerticalOptions="Center" />
             <Label Grid.Column="0" Text="Только незакрытые" Margin="42,0,0,0" FontSize="15"
                    VerticalOptions="Center" />
@@ -24,7 +24,7 @@
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="10" VerticalOptions="Center">
                         <Label Text="Заданий нет" FontSize="20" HorizontalTextAlignment="Center" />
-                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="#666"
+                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
@@ -51,16 +51,16 @@
                             <Label Grid.Row="0" Grid.Column="1" FontSize="19" FontAttributes="Bold"
                                    Text="{Binding Number}" />
 
-                            <Label Grid.Row="0" Grid.Column="2" FontSize="14" TextColor="#555"
+                            <Label Grid.Row="0" Grid.Column="2" FontSize="14" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                    HorizontalTextAlignment="End" Text="{Binding StatusText}" />
 
-                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="15" TextColor="#333"
+                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="15" TextColor="{AppThemeBinding Light=#222222, Dark=#E6EBEF}"
                                    LineBreakMode="TailTruncation" Text="{Binding Customer}" />
 
-                            <Label Grid.Row="2" Grid.Column="1" FontSize="14" TextColor="#1B4F8A"
+                            <Label Grid.Row="2" Grid.Column="1" FontSize="14" TextColor="{AppThemeBinding Light=#1B4F8A, Dark=#7FB2E5}"
                                    FontAttributes="Bold" Text="{Binding Progress}" />
 
-                            <Label Grid.Row="2" Grid.Column="2" FontSize="13" TextColor="#8A6D1B"
+                            <Label Grid.Row="2" Grid.Column="2" FontSize="13" TextColor="{AppThemeBinding Light=#8A6D1B, Dark=#E3C168}"
                                    HorizontalTextAlignment="End" Text="{Binding IncomingText}" />
                         </Grid>
                     </DataTemplate>
@@ -68,7 +68,7 @@
             </CollectionView>
         </RefreshView>
 
-        <Label Grid.Row="2" Padding="12,8" FontSize="13" TextColor="#555" BackgroundColor="#F2F5F8"
+        <Label Grid.Row="2" Padding="12,8" FontSize="13" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}"
                LineBreakMode="WordWrap" Text="{Binding StatusMessage}" />
     </Grid>
 </ContentPage>

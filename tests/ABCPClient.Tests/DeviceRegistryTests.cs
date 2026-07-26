@@ -160,6 +160,28 @@ public sealed class DeviceRegistryTests
     public void Private_addresses_are_told_apart(string address, bool expected) =>
         Assert.Equal(expected, WarehouseHub.IsPrivate(IPAddress.Parse(address)));
 
+    [Theory]
+    [InlineData("::ffff:192.168.0.55", true)]
+    [InlineData("::ffff:10.8.1.42", true)]
+    [InlineData("::ffff:127.0.0.1", true)]
+    [InlineData("::ffff:8.8.8.8", false)]
+    public void Mapped_ipv4_address_is_recognised(string address, bool expected)
+    {
+        // Узел слушает двойным стеком, поэтому обращение телефона по IPv4
+        // приходит в таком виде. Без разворачивания проверка отвергала
+        // устройство из той же сети склада.
+        Assert.Equal(expected, WarehouseHub.IsPrivate(IPAddress.Parse(address)));
+    }
+
+    [Theory]
+    [InlineData("::1", true)]
+    [InlineData("fe80::1", true)]
+    [InlineData("fd00::1", true)]
+    [InlineData("fc00::1", true)]
+    [InlineData("2a00:1450:4001::1", false)]
+    public void Private_ipv6_addresses_are_told_apart(string address, bool expected) =>
+        Assert.Equal(expected, WarehouseHub.IsPrivate(IPAddress.Parse(address)));
+
     private static DeviceRegistry Create(
         out MemoryStore store,
         MutableTime time,

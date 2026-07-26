@@ -174,11 +174,13 @@ public sealed class PickingTaskItemViewModel
 
         HasWork = task.InStockLines > task.CompleteLines;
 
+        // Цвета выбраны читаемыми и на светлом, и на тёмном фоне: полоса узкая,
+        // и подбирать её оттенок под тему было бы возней без выгоды.
         AccentColor = HasWork
-            ? Color.FromArgb("#1B7F3B")
+            ? Color.FromArgb("#2E9E52")
             : task.Status == PickingStatusCodes.Picked
-                ? Color.FromArgb("#B8C4CE")
-                : Color.FromArgb("#C68A1B");
+                ? Color.FromArgb("#8A97A2")
+                : Color.FromArgb("#D19A28");
     }
 
     /// <summary>Цвет полосы состояния слева.</summary>

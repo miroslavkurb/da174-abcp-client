@@ -13,7 +13,7 @@
         <!-- Поиск и обновление. Кнопка крупная: на складе по ней бьют пальцем
              в перчатке, а не курсором. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="12,10" ColumnSpacing="8"
-              BackgroundColor="#F2F5F8">
+              BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
             <SearchBar Grid.Column="0"
                        Placeholder="Номер, клиент, артикул"
                        Text="{Binding SearchText}"
@@ -34,7 +34,7 @@
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="10" VerticalOptions="Center">
                         <Label Text="Список пуст" FontSize="20" HorizontalTextAlignment="Center" />
-                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="#666"
+                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
@@ -63,11 +63,11 @@
                                    HorizontalTextAlignment="End"
                                    Text="{Binding Sum, StringFormat='{0:N0} ₽'}" />
 
-                            <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="#555"
+                            <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                    LineBreakMode="TailTruncation"
                                    Text="{Binding Customer, TargetNullValue='Клиент не указан'}" />
 
-                            <Label Grid.Row="1" Grid.Column="2" FontSize="14" TextColor="#555"
+                            <Label Grid.Row="1" Grid.Column="2" FontSize="14" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                    HorizontalTextAlignment="End"
                                    Text="{Binding StatusText}" />
                         </Grid>
@@ -76,8 +76,8 @@
             </CollectionView>
         </RefreshView>
 
-        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="#F2F5F8" ColumnDefinitions="*,Auto">
-            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#555"
+        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                    LineBreakMode="TailTruncation" VerticalOptions="Center" />
             <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                                WidthRequest="20" HeightRequest="20" />

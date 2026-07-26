@@ -9,10 +9,10 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
 
-        <VerticalStackLayout Grid.Row="0" Padding="14,12" Spacing="3" BackgroundColor="#F2F5F8">
+        <VerticalStackLayout Grid.Row="0" Padding="14,12" Spacing="3" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
             <Label Text="{Binding Customer, TargetNullValue='Клиент не указан'}" FontSize="17"
                    FontAttributes="Bold" />
-            <Label Text="{Binding StatusText}" FontSize="15" TextColor="#555" />
+            <Label Text="{Binding StatusText}" FontSize="15" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}" />
             <Label Text="{Binding SumText}" FontSize="16" FontAttributes="Bold" />
         </VerticalStackLayout>
 
@@ -28,7 +28,7 @@
                                Source="{Binding Image}"
                                Aspect="AspectFit"
                                HeightRequest="72" WidthRequest="72"
-                               BackgroundColor="#EFEFEF" />
+                               BackgroundColor="{AppThemeBinding Light=#EFEFEF, Dark=#2A3742}" />
 
                         <Label Grid.Row="0" Grid.Column="1" FontSize="17" FontAttributes="Bold">
                             <Label.FormattedText>
@@ -40,7 +40,7 @@
                             </Label.FormattedText>
                         </Label>
 
-                        <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="#333"
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="{AppThemeBinding Light=#222222, Dark=#E6EBEF}"
                                LineBreakMode="WordWrap" MaxLines="3"
                                Text="{Binding Description, TargetNullValue='Наименование неизвестно'}" />
 
@@ -48,7 +48,7 @@
                             <Label Grid.Column="0" FontSize="15" FontAttributes="Bold"
                                    Text="{Binding QuantityText, Mode=OneWay}" />
                             <Label Grid.Column="1" FontSize="15" Text="{Binding SumText, Mode=OneWay}" />
-                            <Label Grid.Column="2" FontSize="13" TextColor="#666"
+                            <Label Grid.Column="2" FontSize="13" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                                    HorizontalTextAlignment="End" LineBreakMode="TailTruncation"
                                    Text="{Binding Status, Mode=OneWay}" />
                         </Grid>
@@ -57,8 +57,8 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="#F2F5F8" ColumnDefinitions="*,Auto">
-            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#555"
+        <Grid Grid.Row="2" Padding="12,8" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                    LineBreakMode="WordWrap" VerticalOptions="Center" />
             <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                                WidthRequest="20" HeightRequest="20" />

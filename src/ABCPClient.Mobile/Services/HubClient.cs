@@ -151,17 +151,21 @@ public sealed class HubClient
                 return HubResult<string>.Failure("Узел вернул неожиданный ответ");
             }
 
+            // Узел мог не вернуть имя: подставляем то, что отправляли сами,
+            // иначе отметка о сборке осталась бы без исполнителя.
+            string acceptedName = string.IsNullOrWhiteSpace(auth.DeviceName) ? name : auth.DeviceName;
+
             Address = normalized;
             _token = auth.Token;
-            DeviceName = auth.DeviceName;
+            DeviceName = acceptedName;
 
             await SecureStorage.SetAsync(AddressKey, normalized).ConfigureAwait(false);
             await SecureStorage.SetAsync(TokenKey, auth.Token).ConfigureAwait(false);
-            await SecureStorage.SetAsync(DeviceKey, auth.DeviceName).ConfigureAwait(false);
+            await SecureStorage.SetAsync(DeviceKey, acceptedName).ConfigureAwait(false);
 
-            _logger.LogInformation("Устройство подключено к узлу {Address} как «{Device}»", normalized, auth.DeviceName);
+            _logger.LogInformation("Устройство подключено к узлу {Address} как «{Device}»", normalized, acceptedName);
 
-            return HubResult<string>.Success(auth.DeviceName);
+            return HubResult<string>.Success(acceptedName);
         }
         catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException)
         {
@@ -387,7 +391,9 @@ public sealed class HubClient
     /// <summary>
     /// Приводит адрес к виду без завершающей косой черты, подставляя схему.
     /// </summary>
-    internal static bool TryNormalize(string? address, out string? normalized)
+    internal static bool TryNormalize(
+        string? address,
+        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? normalized)
     {
         normalized = null;
 

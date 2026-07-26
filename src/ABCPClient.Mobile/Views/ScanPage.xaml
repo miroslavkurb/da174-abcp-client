@@ -12,7 +12,7 @@
         <!-- Поле ввода держит фокус: аппаратный сканер работает как клавиатура
              и подставляет штрихкод именно в него, завершая ввод переводом строки. -->
         <Grid Grid.Row="0" Padding="12,12,12,6" ColumnDefinitions="*,Auto" ColumnSpacing="8"
-              BackgroundColor="#F2F5F8">
+              BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
             <Entry x:Name="ScanInput" Grid.Column="0"
                    Text="{Binding Input}"
                    Placeholder="Штрихкод или артикул"
@@ -27,11 +27,11 @@
                     IsEnabled="{Binding IsNotBusy}" />
         </Grid>
 
-        <Grid Grid.Row="1" Padding="12,0,12,10" ColumnDefinitions="*,Auto" BackgroundColor="#F2F5F8">
-            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="14" TextColor="#555"
+        <Grid Grid.Row="1" Padding="12,0,12,10" ColumnDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="14" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}"
                    LineBreakMode="WordWrap" VerticalOptions="Center" />
             <Button Grid.Column="1" Text="Сброс" FontSize="14" HeightRequest="40" MinimumWidthRequest="80"
-                    BackgroundColor="Transparent" TextColor="#1B4F8A"
+                    BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#1B4F8A, Dark=#7FB2E5}"
                     Command="{Binding ClearCommand}" />
         </Grid>
 
@@ -39,7 +39,7 @@
             <CollectionView.EmptyView>
                 <VerticalStackLayout Padding="24" Spacing="12" VerticalOptions="Center">
                     <Label Text="Ничего не найдено" FontSize="19" HorizontalTextAlignment="Center" />
-                    <Label FontSize="14" TextColor="#666" HorizontalTextAlignment="Center"
+                    <Label FontSize="14" TextColor="{AppThemeBinding Light=#555555, Dark=#B9C4CE}" HorizontalTextAlignment="Center"
                            Text="Штрихкоды и наименования попадают в базу из выгрузки каталога магазина. Загрузите её в настольной программе, иначе искать можно только по артикулу уже виденных деталей." />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
@@ -51,7 +51,7 @@
 
                         <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
                                Source="{Binding Image}" Aspect="AspectFit"
-                               HeightRequest="72" WidthRequest="72" BackgroundColor="#EFEFEF" />
+                               HeightRequest="72" WidthRequest="72" BackgroundColor="{AppThemeBinding Light=#EFEFEF, Dark=#2A3742}" />
 
                         <Label Grid.Row="0" Grid.Column="1" FontSize="18" FontAttributes="Bold">
                             <Label.FormattedText>
@@ -63,11 +63,11 @@
                             </Label.FormattedText>
                         </Label>
 
-                        <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="#333"
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="15" TextColor="{AppThemeBinding Light=#222222, Dark=#E6EBEF}"
                                LineBreakMode="WordWrap" MaxLines="3"
                                Text="{Binding Description, Mode=OneWay}" />
 
-                        <Label Grid.Row="2" Grid.Column="1" FontSize="12" TextColor="#777"
+                        <Label Grid.Row="2" Grid.Column="1" FontSize="12" TextColor="{AppThemeBinding Light=#6B6B6B, Dark=#9AA7B2}"
                                LineBreakMode="TailTruncation"
                                Text="{Binding Barcodes, Mode=OneWay}" />
                     </Grid>
@@ -77,7 +77,7 @@
 
         <!-- Задел под сборку: кнопка появится, когда узел склада начнёт выдавать
              задания. Сейчас показывать нечего, поэтому её нет вовсе, а не заглушка. -->
-        <Label Grid.Row="3" Padding="12,10" FontSize="12" TextColor="#777" BackgroundColor="#F2F5F8"
+        <Label Grid.Row="3" Padding="12,10" FontSize="12" TextColor="{AppThemeBinding Light=#6B6B6B, Dark=#9AA7B2}" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}"
                Text="Сканирование работает и аппаратным сканером терминала, и вводом с клавиатуры." />
     </Grid>
 </ContentPage>

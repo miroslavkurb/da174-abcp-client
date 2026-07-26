@@ -13,11 +13,13 @@
     <!-- Вкладки, а не выдвижное меню: на складе устройство держат одной рукой,
          и переключение должно доставаться большим пальцем. -->
     <TabBar>
-        <!-- Сборка первой: это основная работа на складе. -->
-        <ShellContent x:Name="PickingTab" Title="Сборка" Route="picking" />
-        <ShellContent x:Name="OrdersTab" Title="Заказы" Route="orders" />
-        <ShellContent x:Name="ScanTab" Title="Поиск" Route="scan" />
-        <ShellContent x:Name="SettingsTab" Title="Настройки" Route="settings" />
+        <!-- Сборка первой: это основная работа на складе.
+             Значки белые: панель синяя в обеих темах, поэтому перекрашивать
+             их под тему не нужно и контраст не теряется. -->
+        <ShellContent x:Name="PickingTab" Title="Сборка" Route="picking" Icon="tab_picking.png" />
+        <ShellContent x:Name="OrdersTab" Title="Заказы" Route="orders" Icon="tab_orders.png" />
+        <ShellContent x:Name="ScanTab" Title="Поиск" Route="scan" Icon="tab_scan.png" />
+        <ShellContent x:Name="SettingsTab" Title="Настройки" Route="settings" Icon="tab_settings.png" />
     </TabBar>
 
 </Shell>

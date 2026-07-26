@@ -9,9 +9,9 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
 
-        <VerticalStackLayout Grid.Row="0" Padding="14,10" Spacing="2" BackgroundColor="#F2F5F8">
+        <VerticalStackLayout Grid.Row="0" Padding="14,10" Spacing="2" BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
             <Label Text="{Binding Subtitle}" FontSize="15" LineBreakMode="TailTruncation" />
-            <Label Text="{Binding ProgressText}" FontSize="14" FontAttributes="Bold" TextColor="#1B4F8A" />
+            <Label Text="{Binding ProgressText}" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#1B4F8A, Dark=#7FB2E5}" />
         </VerticalStackLayout>
 
         <!-- Поле сканера держит фокус: аппаратный сканер печатает в него и жмёт Enter. -->
@@ -29,15 +29,15 @@
         <!-- Итог последнего скана крупно: сборщик смотрит на экран мельком. -->
         <Border Grid.Row="2" Margin="12,0,12,8" Padding="10" StrokeThickness="0">
             <Border.Background>
-                <SolidColorBrush Color="#EEF3F8" />
+                <SolidColorBrush Color="{AppThemeBinding Light=#EEF3F8, Dark=#243542}" />
             </Border.Background>
             <Label Text="{Binding ScanResult}" FontSize="17" FontAttributes="Bold" LineBreakMode="WordWrap">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding ScanFailed}" Value="True">
-                        <Setter Property="TextColor" Value="#B3261E" />
+                        <Setter Property="TextColor" Value="{AppThemeBinding Light=#B3261E, Dark=#F2B8B5}" />
                     </DataTrigger>
                     <DataTrigger TargetType="Label" Binding="{Binding ScanFailed}" Value="False">
-                        <Setter Property="TextColor" Value="#1B7F3B" />
+                        <Setter Property="TextColor" Value="{AppThemeBinding Light=#1B7F3B, Dark=#6FD08C}" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -51,24 +51,24 @@
 
                         <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Source="{Binding Image}"
                                Aspect="AspectFit" HeightRequest="64" WidthRequest="64"
-                               BackgroundColor="#EFEFEF" />
+                               BackgroundColor="{AppThemeBinding Light=#EFEFEF, Dark=#2A3742}" />
 
                         <Label Grid.Row="0" Grid.Column="1" FontSize="17" FontAttributes="Bold"
                                Text="{Binding Title}" />
 
-                        <Label Grid.Row="1" Grid.Column="1" FontSize="14" TextColor="#333"
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="14" TextColor="{AppThemeBinding Light=#222222, Dark=#E6EBEF}"
                                LineBreakMode="TailTruncation" MaxLines="2" Text="{Binding Description}" />
 
                         <Label Grid.Row="2" Grid.Column="1" FontSize="13" Text="{Binding AvailabilityText}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding IsInStock}" Value="True">
-                                    <Setter Property="TextColor" Value="#1B7F3B" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#1B7F3B, Dark=#6FD08C}" />
                                 </DataTrigger>
                                 <DataTrigger TargetType="Label" Binding="{Binding IsIncoming}" Value="True">
-                                    <Setter Property="TextColor" Value="#8A6D1B" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#8A6D1B, Dark=#E3C168}" />
                                 </DataTrigger>
                                 <DataTrigger TargetType="Label" Binding="{Binding IsInStock}" Value="False">
-                                    <Setter Property="TextColor" Value="#777" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#6B6B6B, Dark=#9AA7B2}" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
@@ -85,7 +85,7 @@
                                     CommandParameter="{Binding .}" />
 
                             <Button Text="Сброс" FontSize="13" HeightRequest="36" MinimumWidthRequest="64"
-                                    Padding="6,0" BackgroundColor="Transparent" TextColor="#B3261E"
+                                    Padding="6,0" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#B3261E, Dark=#F2B8B5}"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PickingTaskViewModel}}, Path=ClearPickCommand}"
                                     CommandParameter="{Binding .}" />
                         </VerticalStackLayout>
@@ -95,8 +95,8 @@
         </CollectionView>
 
         <Grid Grid.Row="4" Padding="12,8" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8"
-              BackgroundColor="#F2F5F8">
-            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#B3261E"
+              BackgroundColor="{AppThemeBinding Light=#F2F5F8, Dark=#1E2A33}">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="{AppThemeBinding Light=#B3261E, Dark=#F2B8B5}"
                    LineBreakMode="WordWrap" VerticalOptions="Center" />
             <Button Grid.Column="1" Text="Обновить" FontSize="14" HeightRequest="44"
                     Command="{Binding RefreshCommand}" IsEnabled="{Binding IsNotBusy}" />
