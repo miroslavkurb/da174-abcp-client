@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ABCPClient.Mobile.Views.PickingTaskPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ABCPClient.Mobile.ViewModels"
+    x:DataType="vm:PickingTaskViewModel"
+    Title="{Binding Header}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <VerticalStackLayout Grid.Row="0" Padding="14,10" Spacing="2" BackgroundColor="#F2F5F8">
+            <Label Text="{Binding Subtitle}" FontSize="15" LineBreakMode="TailTruncation" />
+            <Label Text="{Binding ProgressText}" FontSize="14" FontAttributes="Bold" TextColor="#1B4F8A" />
+        </VerticalStackLayout>
+
+        <!-- Поле сканера держит фокус: аппаратный сканер печатает в него и жмёт Enter. -->
+        <Grid Grid.Row="1" Padding="12,10,12,6" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Entry x:Name="ScanInput" Grid.Column="0"
+                   Text="{Binding ScanInput}"
+                   Placeholder="Сканируйте штрихкод или введите артикул"
+                   FontSize="18" HeightRequest="52"
+                   ReturnType="Done"
+                   ReturnCommand="{Binding ScanCommand}" />
+            <Button Grid.Column="1" Text="Отметить" FontSize="16" HeightRequest="52" MinimumWidthRequest="110"
+                    Command="{Binding ScanCommand}" IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+
+        <!-- Итог последнего скана крупно: сборщик смотрит на экран мельком. -->
+        <Border Grid.Row="2" Margin="12,0,12,8" Padding="10" StrokeThickness="0">
+            <Border.Background>
+                <SolidColorBrush Color="#EEF3F8" />
+            </Border.Background>
+            <Label Text="{Binding ScanResult}" FontSize="17" FontAttributes="Bold" LineBreakMode="WordWrap">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ScanFailed}" Value="True">
+                        <Setter Property="TextColor" Value="#B3261E" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Label" Binding="{Binding ScanFailed}" Value="False">
+                        <Setter Property="TextColor" Value="#1B7F3B" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+        </Border>
+
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Lines}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:PickingLineViewModel">
+                    <Grid Padding="12,10" ColumnDefinitions="64,*,Auto" ColumnSpacing="10"
+                          RowDefinitions="Auto,Auto,Auto" RowSpacing="2">
+
+                        <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Source="{Binding Image}"
+                               Aspect="AspectFit" HeightRequest="64" WidthRequest="64"
+                               BackgroundColor="#EFEFEF" />
+
+                        <Label Grid.Row="0" Grid.Column="1" FontSize="17" FontAttributes="Bold"
+                               Text="{Binding Title}" />
+
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="14" TextColor="#333"
+                               LineBreakMode="TailTruncation" MaxLines="2" Text="{Binding Description}" />
+
+                        <Label Grid.Row="2" Grid.Column="1" FontSize="13" Text="{Binding AvailabilityText}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsInStock}" Value="True">
+                                    <Setter Property="TextColor" Value="#1B7F3B" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsIncoming}" Value="True">
+                                    <Setter Property="TextColor" Value="#8A6D1B" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsInStock}" Value="False">
+                                    <Setter Property="TextColor" Value="#777" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+
+                        <VerticalStackLayout Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Spacing="4"
+                                             HorizontalOptions="End">
+                            <Label Text="{Binding QuantityText}" FontSize="19" FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" />
+
+                            <Button Text="Всё" FontSize="13" HeightRequest="36" MinimumWidthRequest="64"
+                                    Padding="6,0"
+                                    IsVisible="{Binding IsInStock}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PickingTaskViewModel}}, Path=PickAllCommand}"
+                                    CommandParameter="{Binding .}" />
+
+                            <Button Text="Сброс" FontSize="13" HeightRequest="36" MinimumWidthRequest="64"
+                                    Padding="6,0" BackgroundColor="Transparent" TextColor="#B3261E"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PickingTaskViewModel}}, Path=ClearPickCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="4" Padding="12,8" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8"
+              BackgroundColor="#F2F5F8">
+            <Label Grid.Column="0" Text="{Binding StatusMessage}" FontSize="13" TextColor="#B3261E"
+                   LineBreakMode="WordWrap" VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="Обновить" FontSize="14" HeightRequest="44"
+                    Command="{Binding RefreshCommand}" IsEnabled="{Binding IsNotBusy}" />
+            <Button Grid.Column="2" Text="Закрыть задание" FontSize="14" HeightRequest="44"
+                    IsVisible="{Binding CanComplete}"
+                    Command="{Binding CompleteCommand}" IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+    </Grid>
+</ContentPage>

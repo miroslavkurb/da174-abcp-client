@@ -10,7 +10,40 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="14">
 
+            <Label Text="Подключение к компьютеру" FontSize="19" FontAttributes="Bold" />
+            <Label FontSize="13" TextColor="#666"
+                   Text="Задания на сборку хранятся в программе на компьютере — она управляющая. Введите адрес, показанный у неё на вкладке «Сборка», затем код сопряжения. Работает только в сети склада." />
+
+            <Label Text="{Binding HubState}" FontSize="14" FontAttributes="Bold" />
+
+            <Label Text="Адрес компьютера" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding HubAddress}" Placeholder="192.168.0.103:5080" Keyboard="Url"
+                   FontSize="17" HeightRequest="50" />
+
+            <Label Text="Имя терминала" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding DeviceName}" Placeholder="ТСД-1" FontSize="17" HeightRequest="50" />
+
+            <Label Text="Код сопряжения" FontSize="14" TextColor="#555" />
+            <Entry Text="{Binding PairingCode}" Placeholder="6 цифр" Keyboard="Numeric"
+                   FontSize="22" HeightRequest="52" MaxLength="6" />
+
+            <Button Text="Проверить связь" FontSize="16" HeightRequest="50"
+                    BackgroundColor="Transparent" TextColor="#1B4F8A" BorderColor="#1B4F8A" BorderWidth="1"
+                    Command="{Binding CheckHubCommand}" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Подключить терминал" FontSize="17" HeightRequest="52"
+                    Command="{Binding PairCommand}" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Забыть подключение" FontSize="14" HeightRequest="44"
+                    BackgroundColor="Transparent" TextColor="#B3261E"
+                    IsVisible="{Binding IsPaired}"
+                    Command="{Binding ForgetHubCommand}" />
+
+            <BoxView HeightRequest="1" Color="#DDD" Margin="0,10" />
+
             <Label Text="Данные доступа к API" FontSize="19" FontAttributes="Bold" />
+            <Label FontSize="13" TextColor="#666"
+                   Text="Нужны только для вкладки «Заказы» — она обращается к ABCP напрямую. Для сборки достаточно подключения к компьютеру." />
             <Label FontSize="13" TextColor="#666"
                    Text="Адрес выдаёт менеджер ABCP. Логин и пароль — от пользователя со статусом «API-администратор». Пароль не сохраняется: приложение хранит его md5-хэш в зашифрованном виде." />
 

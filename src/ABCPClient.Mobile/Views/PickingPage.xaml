@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ABCPClient.Mobile.Views.PickingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ABCPClient.Mobile.ViewModels"
+    x:DataType="vm:PickingViewModel"
+    Title="Сборка">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0" Padding="12,10" ColumnDefinitions="*,Auto" ColumnSpacing="8"
+              BackgroundColor="#F2F5F8">
+            <CheckBox Grid.Column="0" IsChecked="{Binding OnlyOpen}" VerticalOptions="Center" />
+            <Label Grid.Column="0" Text="Только незакрытые" Margin="42,0,0,0" FontSize="15"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="Обновить" FontSize="16" HeightRequest="48" MinimumWidthRequest="110"
+                    Command="{Binding LoadCommand}" IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="10" VerticalOptions="Center">
+                        <Label Text="Заданий нет" FontSize="20" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding StatusMessage}" FontSize="15" TextColor="#666"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PickingTaskItemViewModel">
+                        <Grid Padding="14,12" ColumnDefinitions="6,*,Auto" ColumnSpacing="12"
+                              RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PickingViewModel}}, Path=OpenTaskCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+
+                            <!-- Зелёная полоса — есть что собирать прямо сейчас.
+                                 Сборщик выбирает задание по ней, а не читая цифры.
+                                 Цвет приходит готовым из модели: преобразователю
+                                 понадобились бы ресурсы приложения, а страницы
+                                 создаются раньше них. -->
+                            <BoxView Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" CornerRadius="3"
+                                     Color="{Binding AccentColor}" />
+
+                            <Label Grid.Row="0" Grid.Column="1" FontSize="19" FontAttributes="Bold"
+                                   Text="{Binding Number}" />
+
+                            <Label Grid.Row="0" Grid.Column="2" FontSize="14" TextColor="#555"
+                                   HorizontalTextAlignment="End" Text="{Binding StatusText}" />
+
+                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="15" TextColor="#333"
+                                   LineBreakMode="TailTruncation" Text="{Binding Customer}" />
+
+                            <Label Grid.Row="2" Grid.Column="1" FontSize="14" TextColor="#1B4F8A"
+                                   FontAttributes="Bold" Text="{Binding Progress}" />
+
+                            <Label Grid.Row="2" Grid.Column="2" FontSize="13" TextColor="#8A6D1B"
+                                   HorizontalTextAlignment="End" Text="{Binding IncomingText}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Label Grid.Row="2" Padding="12,8" FontSize="13" TextColor="#555" BackgroundColor="#F2F5F8"
+               LineBreakMode="WordWrap" Text="{Binding StatusMessage}" />
+    </Grid>
+</ContentPage>

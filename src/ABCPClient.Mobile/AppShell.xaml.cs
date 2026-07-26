@@ -12,23 +12,27 @@ namespace ABCPClient.Mobile;
 public partial class AppShell : Shell
 {
     /// <summary>Создаёт оболочку.</summary>
+    /// <param name="picking">Экран заданий на сборку.</param>
     /// <param name="orders">Экран списка заказов.</param>
     /// <param name="scan">Экран сканирования и поиска.</param>
     /// <param name="settings">Экран настроек.</param>
-    public AppShell(OrdersPage orders, ScanPage scan, SettingsPage settings)
+    public AppShell(PickingPage picking, OrdersPage orders, ScanPage scan, SettingsPage settings)
     {
+        ArgumentNullException.ThrowIfNull(picking);
         ArgumentNullException.ThrowIfNull(orders);
         ArgumentNullException.ThrowIfNull(scan);
         ArgumentNullException.ThrowIfNull(settings);
 
         InitializeComponent();
 
+        PickingTab.Content = picking;
         OrdersTab.Content = orders;
         ScanTab.Content = scan;
         SettingsTab.Content = settings;
 
-        // Карточка заказа открывается переходом с параметром, поэтому её маршрут
-        // регистрируется отдельно от вкладок.
+        // Экраны, открываемые переходом с параметром: их маршруты регистрируются
+        // отдельно от вкладок.
         Routing.RegisterRoute(nameof(OrderDetailsPage), typeof(OrderDetailsPage));
+        Routing.RegisterRoute(nameof(PickingTaskPage), typeof(PickingTaskPage));
     }
 }

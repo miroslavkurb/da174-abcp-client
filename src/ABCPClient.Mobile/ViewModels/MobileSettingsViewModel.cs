@@ -24,6 +24,7 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
     private readonly IAbcpApiClient _api;
     private readonly IOrderSyncService _sync;
     private readonly AppStartup _startup;
+    private readonly HubClient _hub;
     private readonly ILogger<MobileSettingsViewModel> _logger;
 
     /// <summary>Адрес API.</summary>
@@ -58,6 +59,26 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
     /// <summary>Работа не идёт — кнопки доступны.</summary>
     public bool IsNotBusy => !IsBusy;
 
+    /// <summary>Адрес узла склада — программы на компьютере.</summary>
+    [ObservableProperty]
+    private string? _hubAddress;
+
+    /// <summary>Код сопряжения, показанный в программе на компьютере.</summary>
+    [ObservableProperty]
+    private string? _pairingCode;
+
+    /// <summary>Имя этого терминала — попадёт в отметку о сборке.</summary>
+    [ObservableProperty]
+    private string? _deviceName;
+
+    /// <summary>Состояние подключения к узлу.</summary>
+    [ObservableProperty]
+    private string _hubState = "Не подключено";
+
+    /// <summary>Терминал подключён к узлу.</summary>
+    [ObservableProperty]
+    private bool _isPaired;
+
     /// <summary>Каталог данных приложения — для понимания, где лежит база.</summary>
     public string DataDirectory => Infrastructure.AppPaths.DataDirectory;
 
@@ -69,6 +90,7 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
         IAbcpApiClient api,
         IOrderSyncService sync,
         AppStartup startup,
+        HubClient hub,
         ILogger<MobileSettingsViewModel> logger)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -77,6 +99,7 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(api);
         ArgumentNullException.ThrowIfNull(sync);
         ArgumentNullException.ThrowIfNull(startup);
+        ArgumentNullException.ThrowIfNull(hub);
         ArgumentNullException.ThrowIfNull(logger);
 
         _store = store;
@@ -85,6 +108,7 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
         _api = api;
         _sync = sync;
         _startup = startup;
+        _hub = hub;
         _logger = logger;
     }
 
@@ -111,6 +135,90 @@ public sealed partial class MobileSettingsViewModel : ObservableObject
 
         HasStoredPassword = !string.IsNullOrWhiteSpace(api.PasswordMd5);
         Password = null;
+
+        await _hub.LoadAsync().ConfigureAwait(true);
+
+        HubAddress = _hub.Address;
+        DeviceName = _hub.DeviceName ?? DeviceInfo.Current.Name;
+        IsPaired = _hub.IsPaired;
+
+        HubState = IsPaired
+            ? $"Подключено к {_hub.Address} как «{_hub.DeviceName}»"
+            : "Не подключено";
+    }
+
+    /// <summary>
+    /// Проверяет, отвечает ли узел по указанному адресу.
+    /// </summary>
+    /// <remarks>
+    /// Отдельным шагом до подключения: неверный адрес нужно обнаружить раньше,
+    /// чем сборщик начнёт вводить код, который живёт десять минут.
+    /// </remarks>
+    [RelayCommand]
+    private async Task CheckHubAsync(CancellationToken cancellationToken)
+    {
+        IsBusy = true;
+
+        try
+        {
+            HubResult<bool> result = await _hub
+                .CheckAsync(HubAddress ?? string.Empty, cancellationToken)
+                .ConfigureAwait(true);
+
+            StatusMessage = result.IsSuccess ? "✔ Узел отвечает" : $"✖ {result.Error}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Подключает терминал к узлу по коду сопряжения.
+    /// </summary>
+    [RelayCommand]
+    private async Task PairAsync(CancellationToken cancellationToken)
+    {
+        IsBusy = true;
+
+        try
+        {
+            HubResult<string> result = await _hub
+                .PairAsync(
+                    HubAddress ?? string.Empty,
+                    PairingCode ?? string.Empty,
+                    DeviceName ?? string.Empty,
+                    cancellationToken)
+                .ConfigureAwait(true);
+
+            if (!result.IsSuccess)
+            {
+                StatusMessage = $"✖ {result.Error}";
+                return;
+            }
+
+            PairingCode = null;
+            IsPaired = true;
+            HubState = $"Подключено к {_hub.Address} как «{result.Value}»";
+            StatusMessage = "✔ Терминал подключён. Задания появятся на вкладке «Сборка»";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Забывает подключение к узлу.
+    /// </summary>
+    [RelayCommand]
+    private async Task ForgetHubAsync()
+    {
+        await _hub.ForgetAsync().ConfigureAwait(true);
+
+        IsPaired = false;
+        HubState = "Не подключено";
+        StatusMessage = "Подключение забыто. Понадобится новый код";
     }
 
     /// <summary>

@@ -61,6 +61,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ABCPClient.Application\ABCPClient.Application.csproj" />
+    <ProjectReference Include="..\ABCPClient.Contracts\ABCPClient.Contracts.csproj" />
     <ProjectReference Include="..\ABCPClient.Domain\ABCPClient.Domain.csproj" />
     <ProjectReference Include="..\ABCPClient.Infrastructure\ABCPClient.Infrastructure.csproj" />
   </ItemGroup>

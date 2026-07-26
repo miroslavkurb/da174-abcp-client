@@ -56,11 +56,24 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<AppStartup>();
 
+        // Обращения к узлу склада. Singleton: он держит адрес и токен устройства.
+        builder.Services.AddSingleton<HubClient>();
+        builder.Services.AddHttpClient(HubClient.HttpClientName, client =>
+        {
+            // Узел в локальной сети отвечает быстро; долгое ожидание на складе
+            // только сбивает сборщика с толку.
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+
+        builder.Services.AddSingleton<PickingViewModel>();
+        builder.Services.AddTransient<PickingTaskViewModel>();
         builder.Services.AddSingleton<OrdersViewModel>();
         builder.Services.AddSingleton<ScanViewModel>();
         builder.Services.AddSingleton<MobileSettingsViewModel>();
         builder.Services.AddTransient<OrderDetailsViewModel>();
 
+        builder.Services.AddSingleton<PickingPage>();
+        builder.Services.AddTransient<PickingTaskPage>();
         builder.Services.AddSingleton<OrdersPage>();
         builder.Services.AddSingleton<ScanPage>();
         builder.Services.AddSingleton<SettingsPage>();
