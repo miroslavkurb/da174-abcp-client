@@ -494,5 +494,8 @@ public sealed class OrderSyncServiceTests
 
         public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new UpdateOptions());
+
+        public Task<PickingOptions> GetPickingOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PickingOptions());
     }
 }

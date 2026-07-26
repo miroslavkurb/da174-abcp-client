@@ -396,5 +396,8 @@ public sealed class ArticleInfoTests : IDisposable
 
         public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new UpdateOptions());
+
+        public Task<PickingOptions> GetPickingOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PickingOptions());
     }
 }

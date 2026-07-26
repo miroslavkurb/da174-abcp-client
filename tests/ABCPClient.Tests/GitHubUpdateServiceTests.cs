@@ -426,6 +426,9 @@ public sealed class GitHubUpdateServiceTests : IDisposable
 
         public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(_updates);
+
+        public Task<PickingOptions> GetPickingOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PickingOptions());
     }
 
     private sealed class MemoryStore : IAppSettingsStore

@@ -3,6 +3,7 @@ using System;
 using ABCPClient.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ABCPClient.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AbcpDbContext))]
-    partial class AbcpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260726175045_AddPicking")]
+    partial class AddPicking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.29");

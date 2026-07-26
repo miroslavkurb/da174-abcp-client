@@ -51,6 +51,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.Configure<CatalogOptions>(configuration.GetSection(CatalogOptions.SectionName));
         services.Configure<UpdateOptions>(configuration.GetSection(UpdateOptions.SectionName));
+        services.Configure<PickingOptions>(configuration.GetSection(PickingOptions.SectionName));
 
         AddApiClient(services);
 
@@ -74,6 +75,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IStatusCatalogRepository, StatusCatalogRepository>();
         services.AddSingleton<ISyncLogRepository, SyncLogRepository>();
         services.AddSingleton<IArticleCardRepository, ArticleCardRepository>();
+        services.AddSingleton<IPickingRepository, PickingRepository>();
 
         // Слой интеграции с внешними учётными системами.
         services.AddSingleton<IExchangeProvider, OneCExchangeProvider>();

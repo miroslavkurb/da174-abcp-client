@@ -135,7 +135,8 @@ public sealed class AppSettingsStoreTests : IAsyncLifetime, IDisposable
                 NotificationsEnabled = true,
             }),
             new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()),
-            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()));
+            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()),
+            new StaticOptionsMonitor<PickingOptions>(new PickingOptions()));
 
         AbcpApiOptions api = await provider.GetApiOptionsAsync();
         SyncOptions sync = await provider.GetSyncOptionsAsync();
@@ -164,7 +165,8 @@ public sealed class AppSettingsStoreTests : IAsyncLifetime, IDisposable
             }),
             new StaticOptionsMonitor<SyncOptions>(new SyncOptions()),
             new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()),
-            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()));
+            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()),
+            new StaticOptionsMonitor<PickingOptions>(new PickingOptions()));
 
         AbcpApiOptions api = await provider.GetApiOptionsAsync();
 

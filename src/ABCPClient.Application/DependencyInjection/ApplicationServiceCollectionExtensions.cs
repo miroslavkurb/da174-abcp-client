@@ -32,6 +32,10 @@ public static class ApplicationServiceCollectionExtensions
         // но пользуются им и настольная программа, и будущий узел склада.
         services.AddSingleton<IArticleLookup, ArticleLookupService>();
 
+        // Задания на сборку. Singleton обязателен: служба выдаёт номера заданий
+        // под замком, а он должен быть общим для всех вызовов.
+        services.AddSingleton<IPickingService, PickingService>();
+
         return services;
     }
 }

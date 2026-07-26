@@ -31,4 +31,10 @@ public interface IAbcpSettingsProvider
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
     Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Возвращает действующие параметры сборки заказов.
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    Task<PickingOptions> GetPickingOptionsAsync(CancellationToken cancellationToken = default);
 }

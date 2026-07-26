@@ -42,6 +42,8 @@ public sealed class AbcpDbContextModelTests : IDisposable
                 "OrderItems",
                 "OrderStatuses",
                 "Orders",
+                "PickingTaskLines",
+                "PickingTasks",
                 "Settings",
                 "SyncLog",
             ],

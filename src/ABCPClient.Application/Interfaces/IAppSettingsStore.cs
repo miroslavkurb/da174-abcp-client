@@ -109,4 +109,12 @@ public static class AppSettingKeys
 
     /// <summary>Файл прошлой версии, который нужно удалить после обновления.</summary>
     public const string UpdatesPendingCleanup = "Updates:PendingCleanup";
+
+    /// <summary>
+    /// Коды статусов позиций, означающие «товар на складе», через запятую.
+    /// </summary>
+    public const string PickingInStockStatusCodes = "Picking:InStockStatusCodes";
+
+    /// <summary>Коды статусов позиций, означающие «товар в пути», через запятую.</summary>
+    public const string PickingIncomingStatusCodes = "Picking:IncomingStatusCodes";
 }

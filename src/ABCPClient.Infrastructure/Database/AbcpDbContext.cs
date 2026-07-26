@@ -45,6 +45,12 @@ public class AbcpDbContext : DbContext
     /// <summary>Кэш карточек товаров.</summary>
     public DbSet<ArticleCard> ArticleCards => Set<ArticleCard>();
 
+    /// <summary>Задания на сборку.</summary>
+    public DbSet<PickingTask> PickingTasks => Set<PickingTask>();
+
+    /// <summary>Строки заданий на сборку.</summary>
+    public DbSet<PickingTaskLine> PickingTaskLines => Set<PickingTaskLine>();
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
