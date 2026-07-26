@@ -244,6 +244,9 @@ public sealed class YmlCatalogImporterTests : IDisposable
 
         public Task<CatalogOptions> GetCatalogOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(_catalog);
+
+        public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new UpdateOptions());
     }
 
     private sealed class MemoryStore : IAppSettingsStore

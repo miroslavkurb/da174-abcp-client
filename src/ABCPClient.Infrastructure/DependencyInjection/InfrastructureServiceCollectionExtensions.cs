@@ -8,6 +8,7 @@ using ABCPClient.Infrastructure.Integration;
 using ABCPClient.Infrastructure.Repositories;
 using ABCPClient.Infrastructure.Security;
 using ABCPClient.Infrastructure.Sync;
+using ABCPClient.Infrastructure.Updates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<SyncOptions>(configuration.GetSection(SyncOptions.SectionName));
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.Configure<CatalogOptions>(configuration.GetSection(CatalogOptions.SectionName));
+        services.Configure<UpdateOptions>(configuration.GetSection(UpdateOptions.SectionName));
 
         AddApiClient(services);
 
@@ -68,6 +70,10 @@ public static class InfrastructureServiceCollectionExtensions
         // Витрина магазина: карточки деталей под заказ, которых нет в выгрузке каталога.
         // Singleton обязателен — служба ограничивает частоту обращений к сайту.
         services.AddSingleton<IStorefrontArticleSource, StorefrontArticleSource>();
+
+        // Обновления из релизов GitHub.
+        services.AddSingleton<IUpdateService, GitHubUpdateService>();
+        services.AddSingleton<IUpdateInstaller, SingleFileUpdateInstaller>();
 
         // Заглушка уведомлений: слой представления заменяет её на Windows Toast.
         // Нужна, чтобы фоновая служба собиралась и без UI (например, в тестах).
@@ -125,6 +131,22 @@ public static class InfrastructureServiceCollectionExtensions
             // некоторые площадки отвечают заглушкой.
             client.DefaultRequestHeaders.UserAgent.ParseAdd("ABCPClient/1.0 (+desktop)");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+        });
+
+        // API GitHub: обязателен узнаваемый User-Agent, иначе запрос отклоняется.
+        // Токен здесь не задаётся — он приходит из настроек при каждом обращении.
+        services.AddHttpClient(GitHubUpdateService.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(10);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("ABCPClient-Updater/1.0");
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            client.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
         })
         .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
         {

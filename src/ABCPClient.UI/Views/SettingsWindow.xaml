@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:ABCPClient.UI.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}"
-        Title="Настройки подключения" Height="760" Width="700"
+        Title="Настройки подключения" Height="820" Width="720"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize">
 
@@ -21,12 +21,21 @@
         <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,14" Foreground="#555"
                    Text="Адрес API выдаёт менеджер ABCP. Логин и пароль — от пользователя со статусом «API-администратор» (Настройки → Система → Данные для доступа к API). Пароль не сохраняется: приложение хранит его md5-хэш в зашифрованном виде." />
 
-        <Grid Grid.Row="1">
+        <!-- Полей много, и в невысоком окне они перестают влезать: прокрутка
+             надёжнее, чем подбор высоты окна под конкретный экран. -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="190" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -106,7 +115,39 @@
                 <TextBlock Text="{Binding CatalogLastImport}" Foreground="#777" FontSize="11"
                            VerticalAlignment="Center" Margin="10,0,0,0" />
             </StackPanel>
+
+            <Separator Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12" />
+
+            <TextBlock Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="#555"
+                       Margin="0,0,0,10"
+                       Text="Обновления берутся из релизов GitHub. Токен нужен только приватному репозиторию: у публичного поле остаётся пустым. Токен даёт доступ к исходному коду, поэтому хранится зашифрованным и в раздаваемый файл программы не попадает." />
+
+            <TextBlock Grid.Row="14" Grid.Column="0" Text="Репозиторий обновлений" VerticalAlignment="Center"
+                       Margin="0,6" />
+            <StackPanel Grid.Row="14" Grid.Column="1" Margin="0,6">
+                <TextBox Padding="4,3" Text="{Binding UpdatesRepository, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Foreground="#777" FontSize="11" Margin="0,4,0,0"
+                           Text="Вид «владелец/имя», например miroslavkurb/da174-abcp-client. Пусто — проверка выключена." />
+            </StackPanel>
+
+            <TextBlock Grid.Row="15" Grid.Column="0" Text="Токен GitHub" VerticalAlignment="Center" Margin="0,6" />
+            <StackPanel Grid.Row="15" Grid.Column="1" Margin="0,6">
+                <PasswordBox x:Name="UpdatesTokenInput" Padding="4,3"
+                             PasswordChanged="OnUpdatesTokenChanged" />
+                <TextBlock Foreground="#777" FontSize="11" Margin="0,4,0,0"
+                           Text="Оставьте поле пустым, чтобы сохранить прежний токен."
+                           Visibility="{Binding HasStoredUpdatesToken, Converter={StaticResource BooleanToVisibility}}" />
+            </StackPanel>
+
+            <CheckBox Grid.Row="16" Grid.Column="1" Margin="0,8"
+                      Content="Проверять обновления при запуске"
+                      IsChecked="{Binding UpdatesCheckOnStartup}" />
+
+            <CheckBox Grid.Row="17" Grid.Column="1" Margin="0,0,0,8"
+                      Content="Предлагать предварительные выпуски"
+                      IsChecked="{Binding UpdatesIncludePrerelease}" />
         </Grid>
+        </ScrollViewer>
 
         <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" TextWrapping="Wrap" Margin="0,10"
                    FontWeight="SemiBold" />

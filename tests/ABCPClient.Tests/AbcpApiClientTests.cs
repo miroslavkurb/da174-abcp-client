@@ -345,6 +345,9 @@ public sealed class AbcpApiClientTests
 
         public Task<CatalogOptions> GetCatalogOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new CatalogOptions());
+
+        public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new UpdateOptions());
     }
 
     /// <summary>Журнал, собирающий сообщения для проверки маскирования секретов.</summary>

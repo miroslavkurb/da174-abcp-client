@@ -134,7 +134,8 @@ public sealed class AppSettingsStoreTests : IAsyncLifetime, IDisposable
                 PollingIntervalSeconds = 120,
                 NotificationsEnabled = true,
             }),
-            new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()));
+            new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()),
+            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()));
 
         AbcpApiOptions api = await provider.GetApiOptionsAsync();
         SyncOptions sync = await provider.GetSyncOptionsAsync();
@@ -162,7 +163,8 @@ public sealed class AppSettingsStoreTests : IAsyncLifetime, IDisposable
                 PageSize = 5000,
             }),
             new StaticOptionsMonitor<SyncOptions>(new SyncOptions()),
-            new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()));
+            new StaticOptionsMonitor<CatalogOptions>(new CatalogOptions()),
+            new StaticOptionsMonitor<UpdateOptions>(new UpdateOptions()));
 
         AbcpApiOptions api = await provider.GetApiOptionsAsync();
 

@@ -1,7 +1,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using ABCPClient.Application.Configuration;
 using ABCPClient.Application.DependencyInjection;
+using ABCPClient.Application.DTO;
 using ABCPClient.Application.Interfaces;
 using ABCPClient.Infrastructure;
 using ABCPClient.Infrastructure.DependencyInjection;
@@ -54,6 +56,10 @@ public partial class App : System.Windows.Application
         MainWindow = window;
         window.Show();
 
+        // Обслуживание обновлений идёт после показа окна: ни удаление файла прошлой
+        // версии, ни обращение к GitHub не должны задерживать запуск.
+        _ = MaintainUpdatesAsync(logger);
+
         base.OnStartup(e);
     }
 
@@ -74,6 +80,55 @@ public partial class App : System.Windows.Application
         await Log.CloseAndFlushAsync().ConfigureAwait(true);
 
         base.OnExit(e);
+    }
+
+    /// <summary>
+    /// Убирает файл прошлой версии и проверяет наличие новой.
+    /// </summary>
+    /// <remarks>
+    /// Ни то ни другое не критично для работы, поэтому любая ошибка только пишется
+    /// в журнал: приложение должно запускаться и без доступа к GitHub.
+    /// Проверка не принудительная — она соблюдает интервал между автоматическими
+    /// обращениями, чтобы не тратить лимит GitHub на каждый запуск.
+    /// </remarks>
+    private async Task MaintainUpdatesAsync(ILogger<App> logger)
+    {
+        try
+        {
+            await _host!.Services.GetRequiredService<IUpdateInstaller>()
+                .CleanupAsync()
+                .ConfigureAwait(true);
+
+            UpdateOptions options = await _host.Services.GetRequiredService<IAbcpSettingsProvider>()
+                .GetUpdateOptionsAsync()
+                .ConfigureAwait(true);
+
+            if (!options.CheckOnStartup)
+            {
+                return;
+            }
+
+            UpdateCheckResult result = await _host.Services.GetRequiredService<IUpdateService>()
+                .CheckAsync()
+                .ConfigureAwait(true);
+
+            if (result.Update is not { } update)
+            {
+                return;
+            }
+
+            // Уведомление, а не окно: обновление не срочное, и прерывать работу
+            // всплывающим окном при каждом запуске незачем.
+            await _host.Services.GetRequiredService<INotificationService>()
+                .NotifyMessageAsync(
+                    "Доступно обновление",
+                    $"Версия {update.Version.Display} — откройте «Обновления» на панели инструментов")
+                .ConfigureAwait(true);
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Обслуживание обновлений не выполнено");
+        }
     }
 
     /// <summary>
@@ -152,6 +207,13 @@ public partial class App : System.Windows.Application
         builder.Services.AddTransient<OrderDetailsWindow>();
         builder.Services.AddSingleton<Func<OrderDetailsWindow>>(provider =>
             provider.GetRequiredService<OrderDetailsWindow>);
+
+        // Окно обновлений: заново при каждом открытии, чтобы проверка шла с чистого
+        // состояния, а не показывала результат прошлого раза.
+        builder.Services.AddTransient<UpdateViewModel>();
+        builder.Services.AddTransient<UpdateWindow>();
+        builder.Services.AddSingleton<Func<UpdateWindow>>(provider =>
+            provider.GetRequiredService<UpdateWindow>);
 
         return builder.Build();
     }

@@ -572,5 +572,8 @@ public sealed class ArticleCardServiceTests
 
         public Task<CatalogOptions> GetCatalogOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new CatalogOptions());
+
+        public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new UpdateOptions());
     }
 }

@@ -22,6 +22,15 @@ public static class AppPaths
     /// <summary>Каталог журналов.</summary>
     public static string LogsDirectory { get; } = EnsureDirectory(Path.Combine(DataDirectory, "logs"));
 
+    /// <summary>
+    /// Каталог загруженных обновлений.
+    /// </summary>
+    /// <remarks>
+    /// Не рядом с исполняемым файлом: он может лежать в <c>Program Files</c>,
+    /// куда обычному пользователю писать нельзя.
+    /// </remarks>
+    public static string UpdatesDirectory { get; } = EnsureDirectory(Path.Combine(DataDirectory, "updates"));
+
     /// <summary>Полный путь к файлу базы данных.</summary>
     /// <param name="fileName">Имя файла базы из настроек.</param>
     public static string GetDatabasePath(string fileName)

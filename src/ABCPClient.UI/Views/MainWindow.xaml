@@ -27,6 +27,8 @@
                         Padding="10,3" IsEnabled="{Binding IsApiConfigured}" />
                 <Separator />
                 <Button Content="Настройки" Padding="10,3" Click="OnOpenSettings" />
+                <Button Content="Обновления" Padding="10,3" Click="OnOpenUpdates"
+                        ToolTip="Проверить наличие новой версии программы" />
                 <Separator />
                 <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="4,0" />
                 <TextBox Width="220" VerticalAlignment="Center"

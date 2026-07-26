@@ -48,6 +48,21 @@ public sealed class ToastNotificationService : INotificationService
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task NotifyMessageAsync(string title, string message, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            Show(title, message);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Не удалось показать уведомление Windows");
+        }
+
+        return Task.CompletedTask;
+    }
+
     private void NotifyNewOrders(IReadOnlyList<string> createdOrders)
     {
         if (createdOrders.Count == 0)

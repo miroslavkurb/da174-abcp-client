@@ -39,6 +39,16 @@ public partial class SettingsWindow : Window
     private void OnPasswordChanged(object sender, RoutedEventArgs e) =>
         _viewModel.Password = PasswordInput.Password;
 
+    /// <summary>
+    /// Переносит введённый токен GitHub в модель представления.
+    /// </summary>
+    /// <remarks>
+    /// Токен вводится в <c>PasswordBox</c> по той же причине, что и пароль:
+    /// это секрет, и показывать его на экране незачем.
+    /// </remarks>
+    private void OnUpdatesTokenChanged(object sender, RoutedEventArgs e) =>
+        _viewModel.UpdatesToken = UpdatesTokenInput.Password;
+
     private async void OnSave(object sender, RoutedEventArgs e)
     {
         await _viewModel.SaveCommand.ExecuteAsync(null);
@@ -46,6 +56,7 @@ public partial class SettingsWindow : Window
         if (_viewModel.IsSaved)
         {
             PasswordInput.Clear();
+            UpdatesTokenInput.Clear();
         }
     }
 

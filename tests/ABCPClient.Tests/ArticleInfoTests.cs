@@ -393,5 +393,8 @@ public sealed class ArticleInfoTests : IDisposable
 
         public Task<CatalogOptions> GetCatalogOptionsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new CatalogOptions());
+
+        public Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new UpdateOptions());
     }
 }

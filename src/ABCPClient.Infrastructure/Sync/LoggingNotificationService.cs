@@ -45,4 +45,11 @@ public sealed class LoggingNotificationService : INotificationService
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task NotifyMessageAsync(string title, string message, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("{Title}: {Message}", title, message);
+        return Task.CompletedTask;
+    }
 }

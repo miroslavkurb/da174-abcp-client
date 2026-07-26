@@ -19,6 +19,7 @@ public sealed class AbcpSettingsProvider : IAbcpSettingsProvider
     private readonly IOptionsMonitor<AbcpApiOptions> _apiDefaults;
     private readonly IOptionsMonitor<SyncOptions> _syncDefaults;
     private readonly IOptionsMonitor<CatalogOptions> _catalogDefaults;
+    private readonly IOptionsMonitor<UpdateOptions> _updateDefaults;
 
     /// <summary>
     /// Создаёт поставщик настроек.
@@ -27,21 +28,25 @@ public sealed class AbcpSettingsProvider : IAbcpSettingsProvider
     /// <param name="apiDefaults">Значения по умолчанию для параметров API.</param>
     /// <param name="syncDefaults">Значения по умолчанию для параметров синхронизации.</param>
     /// <param name="catalogDefaults">Значения по умолчанию для импорта каталога.</param>
+    /// <param name="updateDefaults">Значения по умолчанию для проверки обновлений.</param>
     public AbcpSettingsProvider(
         IAppSettingsStore store,
         IOptionsMonitor<AbcpApiOptions> apiDefaults,
         IOptionsMonitor<SyncOptions> syncDefaults,
-        IOptionsMonitor<CatalogOptions> catalogDefaults)
+        IOptionsMonitor<CatalogOptions> catalogDefaults,
+        IOptionsMonitor<UpdateOptions> updateDefaults)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(apiDefaults);
         ArgumentNullException.ThrowIfNull(syncDefaults);
         ArgumentNullException.ThrowIfNull(catalogDefaults);
+        ArgumentNullException.ThrowIfNull(updateDefaults);
 
         _store = store;
         _apiDefaults = apiDefaults;
         _syncDefaults = syncDefaults;
         _catalogDefaults = catalogDefaults;
+        _updateDefaults = updateDefaults;
     }
 
     /// <inheritdoc />
@@ -102,6 +107,27 @@ public sealed class AbcpSettingsProvider : IAbcpSettingsProvider
             PrefetchImages = Flag(stored, AppSettingKeys.CatalogPrefetchImages) ?? defaults.PrefetchImages,
             StorefrontUrl = Text(stored, AppSettingKeys.CatalogStorefrontUrl) ?? defaults.StorefrontUrl,
             StorefrontRequestsPerMinute = defaults.StorefrontRequestsPerMinute,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<UpdateOptions> GetUpdateOptionsAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateOptions defaults = _updateDefaults.CurrentValue;
+        IReadOnlyDictionary<string, string?> stored = await _store
+            .GetAllAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new UpdateOptions
+        {
+            Repository = Text(stored, AppSettingKeys.UpdatesRepository) ?? defaults.Repository,
+            Token = Text(stored, AppSettingKeys.UpdatesToken) ?? defaults.Token,
+            CheckOnStartup = Flag(stored, AppSettingKeys.UpdatesCheckOnStartup) ?? defaults.CheckOnStartup,
+            IncludePrerelease =
+                Flag(stored, AppSettingKeys.UpdatesIncludePrerelease) ?? defaults.IncludePrerelease,
+            CheckIntervalHours = defaults.CheckIntervalHours,
+            AssetPattern = defaults.AssetPattern,
+            ChecksumAssetName = defaults.ChecksumAssetName,
         };
     }
 

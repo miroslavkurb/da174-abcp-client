@@ -62,6 +62,18 @@ public interface INotificationService
     /// <param name="changes">Обнаруженные изменения.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     Task NotifyAsync(OrderChangeSet changes, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Показывает произвольное сообщение.
+    /// </summary>
+    /// <remarks>
+    /// Нужно для событий, не связанных с заказами, — например для сообщения
+    /// о доступном обновлении программы.
+    /// </remarks>
+    /// <param name="title">Заголовок.</param>
+    /// <param name="message">Текст.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    Task NotifyMessageAsync(string title, string message, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

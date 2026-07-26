@@ -71,6 +71,28 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string? _catalogLastImport;
 
+    /// <summary>Репозиторий с релизами в виде «владелец/имя».</summary>
+    [ObservableProperty]
+    private string? _updatesRepository;
+
+    /// <summary>
+    /// Введённый токен доступа к GitHub. Пусто — оставить сохранённый.
+    /// </summary>
+    [ObservableProperty]
+    private string? _updatesToken;
+
+    /// <summary>Токен уже сохранён.</summary>
+    [ObservableProperty]
+    private bool _hasStoredUpdatesToken;
+
+    /// <summary>Проверять обновления при запуске.</summary>
+    [ObservableProperty]
+    private bool _updatesCheckOnStartup = true;
+
+    /// <summary>Учитывать предварительные выпуски.</summary>
+    [ObservableProperty]
+    private bool _updatesIncludePrerelease;
+
     [ObservableProperty]
     private string? _statusMessage;
 
@@ -128,6 +150,16 @@ public sealed partial class SettingsViewModel : ObservableObject
         CatalogFeedPath = catalog.FeedPath;
         CatalogPrefetchImages = catalog.PrefetchImages;
         StorefrontUrl = catalog.StorefrontUrl;
+
+        UpdateOptions updates = await _settings.GetUpdateOptionsAsync(cancellationToken).ConfigureAwait(true);
+
+        UpdatesRepository = updates.Repository;
+        UpdatesCheckOnStartup = updates.CheckOnStartup;
+        UpdatesIncludePrerelease = updates.IncludePrerelease;
+
+        // Сам токен в интерфейс не выводится — только признак его наличия.
+        HasStoredUpdatesToken = !string.IsNullOrWhiteSpace(updates.Token);
+        UpdatesToken = null;
 
         string? lastImport = await _store
             .GetAsync(AppSettingKeys.CatalogLastImportAt, cancellationToken)
@@ -370,6 +402,39 @@ public sealed partial class SettingsViewModel : ObservableObject
             StorefrontUrl?.Trim().TrimEnd('/'),
             protect: false,
             cancellationToken).ConfigureAwait(true);
+
+        await _store.SetAsync(
+            AppSettingKeys.UpdatesRepository,
+            UpdatesRepository?.Trim(),
+            protect: false,
+            cancellationToken).ConfigureAwait(true);
+
+        await _store.SetAsync(
+            AppSettingKeys.UpdatesCheckOnStartup,
+            UpdatesCheckOnStartup ? "true" : "false",
+            protect: false,
+            cancellationToken).ConfigureAwait(true);
+
+        await _store.SetAsync(
+            AppSettingKeys.UpdatesIncludePrerelease,
+            UpdatesIncludePrerelease ? "true" : "false",
+            protect: false,
+            cancellationToken).ConfigureAwait(true);
+
+        // Пустое поле означает «оставить сохранённый токен», а не «удалить».
+        if (!string.IsNullOrWhiteSpace(UpdatesToken))
+        {
+            // Токен даёт доступ к репозиторию, поэтому шифруется DPAPI,
+            // как и хэш пароля API.
+            await _store.SetAsync(
+                AppSettingKeys.UpdatesToken,
+                UpdatesToken.Trim(),
+                protect: true,
+                cancellationToken).ConfigureAwait(true);
+
+            UpdatesToken = null;
+            HasStoredUpdatesToken = true;
+        }
     }
 
     private bool Validate()

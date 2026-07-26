@@ -91,4 +91,22 @@ public static class AppSettingKeys
 
     /// <summary>Момент последнего импорта каталога.</summary>
     public const string CatalogLastImportAt = "Catalog:LastImportAt";
+
+    /// <summary>Репозиторий с релизами в виде <c>владелец/имя</c>.</summary>
+    public const string UpdatesRepository = "Updates:Repository";
+
+    /// <summary>Токен доступа к GitHub. Хранится зашифрованным.</summary>
+    public const string UpdatesToken = "Updates:Token";
+
+    /// <summary>Проверять обновления при запуске.</summary>
+    public const string UpdatesCheckOnStartup = "Updates:CheckOnStartup";
+
+    /// <summary>Учитывать предварительные выпуски.</summary>
+    public const string UpdatesIncludePrerelease = "Updates:IncludePrerelease";
+
+    /// <summary>Момент последней автоматической проверки обновлений.</summary>
+    public const string UpdatesLastCheckAt = "Updates:LastCheckAt";
+
+    /// <summary>Файл прошлой версии, который нужно удалить после обновления.</summary>
+    public const string UpdatesPendingCleanup = "Updates:PendingCleanup";
 }

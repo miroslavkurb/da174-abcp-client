@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly Func<SettingsWindow> _settingsWindowFactory;
     private readonly Func<OrderDetailsWindow> _orderDetailsWindowFactory;
+    private readonly Func<UpdateWindow> _updateWindowFactory;
 
     /// <summary>
     /// Создаёт окно.
@@ -25,18 +26,22 @@ public partial class MainWindow : Window
     /// чтобы поля заполнялись действующими настройками.
     /// </param>
     /// <param name="orderDetailsWindowFactory">Фабрика карточки заказа.</param>
+    /// <param name="updateWindowFactory">Фабрика окна обновлений.</param>
     public MainWindow(
         MainViewModel viewModel,
         Func<SettingsWindow> settingsWindowFactory,
-        Func<OrderDetailsWindow> orderDetailsWindowFactory)
+        Func<OrderDetailsWindow> orderDetailsWindowFactory,
+        Func<UpdateWindow> updateWindowFactory)
     {
         ArgumentNullException.ThrowIfNull(viewModel);
         ArgumentNullException.ThrowIfNull(settingsWindowFactory);
         ArgumentNullException.ThrowIfNull(orderDetailsWindowFactory);
+        ArgumentNullException.ThrowIfNull(updateWindowFactory);
 
         _viewModel = viewModel;
         _settingsWindowFactory = settingsWindowFactory;
         _orderDetailsWindowFactory = orderDetailsWindowFactory;
+        _updateWindowFactory = updateWindowFactory;
 
         InitializeComponent();
         DataContext = viewModel;
@@ -98,5 +103,19 @@ public partial class MainWindow : Window
         // Настройки могли измениться: обновляем строку состояния, справочник и список.
         await _viewModel.RefreshConnectionStateAsync(CancellationToken.None);
         await _viewModel.LoadCommand.ExecuteAsync(null);
+    }
+
+    /// <summary>
+    /// Открывает окно обновлений.
+    /// </summary>
+    /// <remarks>
+    /// Окно не модальное: загрузка файла занимает минуты, и блокировать на это
+    /// время работу с заказами незачем.
+    /// </remarks>
+    private void OnOpenUpdates(object sender, RoutedEventArgs e)
+    {
+        UpdateWindow window = _updateWindowFactory();
+        window.Owner = this;
+        window.Show();
     }
 }
